@@ -22,3 +22,7 @@ makeMove number mark =
 
 availableMoves board =
     List.filter (\x -> x /= "X" && x /= "O") board
+
+
+isValidMove move board =
+    List.member move (availableMoves board)
