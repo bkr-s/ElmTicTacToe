@@ -16,5 +16,9 @@ cells =
 
 
 makeMove number mark =
-    set number mark (fromList cells)
+    set (number - 1) mark (fromList cells)
         |> toList
+
+
+availableMoves board =
+    List.filter (\x -> x /= "X" && x /= "O") board
