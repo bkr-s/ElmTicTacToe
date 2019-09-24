@@ -12,4 +12,8 @@ suite =
             \() ->
                 [ "1", "2", "3", "4", "5", "6", "7", "8", "9" ]
                     |> Expect.equal Board.cells
+        , test "board takes a move" <|
+            \() ->
+                True
+                    |> Expect.equal (List.member "X" (Board.makeMove 1 "X"))
         ]
