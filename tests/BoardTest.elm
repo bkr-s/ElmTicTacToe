@@ -18,7 +18,7 @@ cross =
     "X"
 
 
-fullBoard =
+fullBoardWithNoWinners =
     Board.marksBoardIfValidMove 7 cross <|
         Board.marksBoardIfValidMove 9 naught <|
             Board.marksBoardIfValidMove 6 cross <|
@@ -64,11 +64,14 @@ suite =
                 Expect.false "Exp: invalid move" (Board.isValidMove 2 <| Board.marksBoardIfValidMove 2 "O" boardGrid)
         , test "knows that the board is full" <|
             \() ->
-                Expect.true "Exp: board is full" (Board.isFull fullBoard)
+                Expect.true "Exp: board is full" (Board.isFull fullBoardWithNoWinners)
         , test "knows that 'X' has won" <|
             \() ->
                 Expect.true "Exp: player 'X' has won" (Board.hasPlayerWon cross boardWithXAsTheWinner)
         , test "knows that 'O' has won" <|
             \() ->
                 Expect.true "Exp: player 'O' has won" (Board.hasPlayerWon naught boardWithOAsTheWinner)
+        , test "knows the board is full and nobody has won" <|
+            \() ->
+                Expect.true "Exp: a tied board" (Board.isATie fullBoardWithNoWinners)
         ]

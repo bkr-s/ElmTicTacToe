@@ -97,3 +97,8 @@ checkSingleLine mark lines currentBoard =
         |> List.filter (\x -> x == mark)
         |> List.length
         |> (==) 3
+
+
+isATie : List String -> Bool
+isATie currentBoard =
+    isFull currentBoard && not (hasPlayerWon "X" currentBoard) && not (hasPlayerWon "O" currentBoard)
