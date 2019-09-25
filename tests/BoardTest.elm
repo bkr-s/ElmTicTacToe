@@ -7,7 +7,7 @@ import Test exposing (..)
 
 
 boardGrid =
-    Board.getGrid { grid = Board.initBoard.grid }
+    Board.currentBoard { grid = Board.initBoard.grid }
 
 
 naught =

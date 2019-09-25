@@ -1,4 +1,4 @@
-module Board exposing (availableMoves, getGrid, hasPlayerWon, initBoard, isATie, isFull, isValidMove, marksBoardIfValidMove)
+module Board exposing (availableMoves, currentBoard, hasPlayerWon, initBoard, isATie, isFull, isValidMove, marksBoardIfValidMove)
 
 import Array exposing (..)
 import List
@@ -51,9 +51,9 @@ winningLines =
 -- CURRENT GRID
 
 
-getGrid : { grid : List String } -> List String
-getGrid boardRecord =
-    List.map (\x -> x) boardRecord.grid
+currentBoard : { grid : List String } -> List String
+currentBoard board =
+    List.map (\x -> x) board.grid
 
 
 
@@ -61,17 +61,17 @@ getGrid boardRecord =
 
 
 marksBoardIfValidMove : Int -> String -> List String -> List String
-marksBoardIfValidMove position mark currentBoard =
-    if isValidMove position currentBoard then
-        getGrid <| updateGrid position mark currentBoard
+marksBoardIfValidMove position mark board =
+    if isValidMove position board then
+        currentBoard <| updateBoard position mark board
 
     else
-        currentBoard
+        board
 
 
 isValidMove : Int -> List String -> Bool
-isValidMove move currentBoard =
-    List.member (String.fromInt move) (availableMoves currentBoard)
+isValidMove move board =
+    List.member (String.fromInt move) (availableMoves board)
 
 
 
@@ -79,8 +79,8 @@ isValidMove move currentBoard =
 
 
 markBoard : Int -> String -> List String -> List String
-markBoard position mark currentBoard =
-    set (position - 1) mark (Array.fromList currentBoard)
+markBoard position mark board =
+    set (position - 1) mark (Array.fromList board)
         |> Array.toList
 
 
@@ -88,24 +88,24 @@ markBoard position mark currentBoard =
 -- @private
 
 
-updateGrid : Int -> String -> List String -> { grid : List String }
-updateGrid position mark currentBoard =
-    { grid = markBoard position mark currentBoard }
+updateBoard : Int -> String -> List String -> { grid : List String }
+updateBoard position mark board =
+    { grid = markBoard position mark board }
 
 
 availableMoves : List String -> List String
-availableMoves currentBoard =
-    List.filter (\x -> x /= "X" && x /= "O") currentBoard
+availableMoves board =
+    List.filter (\x -> x /= "X" && x /= "O") board
 
 
 isFull : List String -> Bool
-isFull currentBoard =
-    List.all (\x -> x == "X" || x == "O") currentBoard
+isFull board =
+    List.all (\x -> x == "X" || x == "O") board
 
 
 hasPlayerWon : String -> List String -> Bool
-hasPlayerWon mark currentBoard =
-    checkAllLines mark currentBoard
+hasPlayerWon mark board =
+    checkAllLines mark board
 
 
 
@@ -113,9 +113,9 @@ hasPlayerWon mark currentBoard =
 
 
 checkAllLines : String -> List String -> Bool
-checkAllLines mark currentBoard =
+checkAllLines mark board =
     winningLines
-        |> List.map (\lines -> checkSingleLine mark lines currentBoard)
+        |> List.map (\lines -> checkSingleLine mark lines board)
         |> List.filter ((==) True)
         |> List.isEmpty
         |> not
@@ -126,14 +126,14 @@ checkAllLines mark currentBoard =
 
 
 checkSingleLine : String -> List Int -> List String -> Bool
-checkSingleLine mark lines currentBoard =
+checkSingleLine mark lines board =
     lines
-        |> List.map (\index -> get index (Array.fromList currentBoard) |> Maybe.withDefault "")
+        |> List.map (\index -> get index (Array.fromList board) |> Maybe.withDefault "")
         |> List.filter (\x -> x == mark)
         |> List.length
         |> (==) 3
 
 
 isATie : List String -> Bool
-isATie currentBoard =
-    isFull currentBoard && not (hasPlayerWon "X" currentBoard) && not (hasPlayerWon "O" currentBoard)
+isATie board =
+    isFull board && not (hasPlayerWon "X" board) && not (hasPlayerWon "O" board)
