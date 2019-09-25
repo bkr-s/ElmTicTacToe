@@ -6,12 +6,12 @@ import String
 
 
 type alias Board =
-    { grid : List String, winningLines : List (List Int) }
+    { grid : List String }
 
 
 initBoard : Board
 initBoard =
-    { grid = initGrid, winningLines = winningCombos }
+    { grid = initGrid }
 
 
 
@@ -31,10 +31,11 @@ gridSize =
 
 
 -- WINNING COMBINATIONS
+-- @private
 
 
-winningCombos : List (List Int)
-winningCombos =
+winningLines : List (List Int)
+winningLines =
     [ [ 0, 1, 2 ]
     , [ 3, 4, 5 ]
     , [ 6, 7, 8 ]
@@ -113,7 +114,7 @@ hasPlayerWon mark currentBoard =
 
 checkAllLines : String -> List String -> Bool
 checkAllLines mark currentBoard =
-    initBoard.winningLines
+    winningLines
         |> List.map (\lines -> checkSingleLine mark lines currentBoard)
         |> List.filter ((==) True)
         |> List.isEmpty

@@ -6,12 +6,8 @@ import List
 import Test exposing (..)
 
 
-getBoard =
-    Board.initBoard
-
-
 boardGrid =
-    Board.getGrid { grid = getBoard.grid }
+    Board.getGrid { grid = Board.initBoard.grid }
 
 
 naught =
