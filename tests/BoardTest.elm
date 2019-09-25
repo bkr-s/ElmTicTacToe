@@ -38,6 +38,14 @@ boardWithXAsTheWinner =
                     Board.marksBoardIfValidMove 1 cross boardGrid
 
 
+boardWithOAsTheWinner =
+    Board.marksBoardIfValidMove 7 naught <|
+        Board.marksBoardIfValidMove 5 cross <|
+            Board.marksBoardIfValidMove 4 naught <|
+                Board.marksBoardIfValidMove 2 cross <|
+                    Board.marksBoardIfValidMove 1 naught boardGrid
+
+
 suite : Test
 suite =
     describe "The Board module"
@@ -60,4 +68,7 @@ suite =
         , test "knows that 'X' has won" <|
             \() ->
                 Expect.true "Exp: player 'X' has won" (Board.hasPlayerWon cross boardWithXAsTheWinner)
+        , test "knows that 'O' has won" <|
+            \() ->
+                Expect.true "Exp: player 'O' has won" (Board.hasPlayerWon naught boardWithOAsTheWinner)
         ]
