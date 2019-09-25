@@ -1,21 +1,23 @@
 module BoardTest exposing (suite)
 
 import Board as Board
+import Dict exposing (values)
 import Expect exposing (Expectation)
 import List
+import Player
 import Test exposing (Test, describe, test)
 
 
 boardGrid =
-    Board.currentBoard { grid = Board.initBoard.grid }
+    Board.initBoard
 
 
 nought =
-    "O"
+    Player.O
 
 
 cross =
-    "X"
+    Player.X
 
 
 fullBoardWithNoWinners =
@@ -52,20 +54,20 @@ suite =
         [ test "marks the board if the move is valid" <|
             \() ->
                 True
-                    |> Expect.equal (List.member "X" (Board.marksBoardIfValidMove 1 "X" boardGrid))
+                    |> Expect.equal (List.member "X" (values (Board.marksBoardIfValidMove 1 cross boardGrid))
         , test "does not mark the board if the move is not valid" <|
             \() ->
                 False
-                    |> Expect.equal (List.member "O" (Board.marksBoardIfValidMove 1 "O" <| Board.marksBoardIfValidMove 1 "X" boardGrid))
+                    |> Expect.equal (List.member nought (Board.marksBoardIfValidMove 1 nought <| Board.marksBoardIfValidMove 1 cross boardGrid))
         , test "knows the available moves" <|
             \() ->
-                Expect.false "Exp: position 1 is unavailable" (List.member "1" <| Board.availableMoves <| Board.marksBoardIfValidMove 1 "X" boardGrid)
+                Expect.false "Exp: position 1 is unavailable" (List.member 1 <| Board.availableMoves <| Board.marksBoardIfValidMove 1 cross boardGrid)
         , test "knows when a move is valid" <|
             \() ->
                 Expect.true "Exp: valid move" (Board.isValidMove 1 boardGrid)
         , test "knows when a move is not valid" <|
             \() ->
-                Expect.false "Exp: invalid move" (Board.isValidMove 2 <| Board.marksBoardIfValidMove 2 "O" boardGrid)
+                Expect.false "Exp: invalid move" (Board.isValidMove 2 <| Board.marksBoardIfValidMove 2 nought boardGrid)
         , test "knows that the board is full" <|
             \() ->
                 Expect.true "Exp: board is full" (Board.isFull fullBoardWithNoWinners)

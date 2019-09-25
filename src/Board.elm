@@ -1,37 +1,33 @@
-module Board exposing (availableMoves, currentBoard, hasPlayerWon, initBoard, isATie, isFull, isValidMove, marksBoardIfValidMove)
+module Board exposing (Board, availableMoves, hasPlayerWon, initBoard, isATie, isFull, isValidMove, marksBoardIfValidMove)
 
 import Array exposing (..)
+import Dict exposing (Dict)
 import List
-import String
+import Player exposing (Player)
 
 
 type alias Board =
-    { grid : List String }
+    Dict Int (Maybe Player)
 
 
-initBoard : Board
+initBoard : Dict Int (Maybe Player)
 initBoard =
-    { grid = initGrid }
+    initGrid
+        |> List.foldl (\index dict -> Dict.insert index Nothing dict) Dict.empty
 
 
 
 -- GRID INITIALISERS
 
 
-initGrid : List String
+initGrid : List Int
 initGrid =
     List.range 1 (gridSize * gridSize)
-        |> List.map (\x -> String.fromInt x)
 
 
 gridSize : Int
 gridSize =
     3
-
-
-
--- WINNING COMBINATIONS
--- @private
 
 
 winningLines : List (List Int)
@@ -47,93 +43,75 @@ winningLines =
     ]
 
 
-
--- CURRENT GRID
-
-
-currentBoard : { grid : List String } -> List String
-currentBoard board =
-    List.map (\x -> x) board.grid
-
-
-
--- ACTIONS ON BOARD
-
-
-marksBoardIfValidMove : Int -> String -> List String -> List String
-marksBoardIfValidMove position mark board =
+marksBoardIfValidMove : Int -> Player -> Dict Int (Maybe Player) -> Dict Int (Maybe Player)
+marksBoardIfValidMove position player board =
     if isValidMove position board then
-        currentBoard <| updateBoard position mark board
+        markBoard position player board
 
     else
         board
 
 
-isValidMove : Int -> List String -> Bool
-isValidMove move board =
-    List.member (String.fromInt move) (availableMoves board)
+isValidMove : Int -> Dict Int (Maybe Player) -> Bool
+isValidMove position board =
+    List.member position (availableMoves board)
 
 
-
---@private
-
-
-markBoard : Int -> String -> List String -> List String
-markBoard position mark board =
-    set (position - 1) mark (Array.fromList board)
-        |> Array.toList
+markBoard : Int -> Player -> Dict Int (Maybe Player) -> Dict Int (Maybe Player)
+markBoard position player board =
+    Dict.update position (player |> Just |> Just |> always) board
 
 
-
--- @private
-
-
-updateBoard : Int -> String -> List String -> { grid : List String }
-updateBoard position mark board =
-    { grid = markBoard position mark board }
-
-
-availableMoves : List String -> List String
+availableMoves : Dict Int (Maybe Player) -> List Int
 availableMoves board =
-    List.filter (\x -> x /= "X" && x /= "O") board
+    Dict.keys board
+        |> List.filter (\x -> Dict.get x board /= Nothing)
 
 
-isFull : List String -> Bool
+isFull : Dict Int (Maybe Player) -> Bool
 isFull board =
-    List.all (\x -> x == "X" || x == "O") board
+    Dict.values board
+        |> List.all (\x -> x /= Nothing || x /= Nothing)
 
 
-hasPlayerWon : String -> List String -> Bool
-hasPlayerWon mark board =
-    checkAllLines mark board
+hasPlayerWon : Player -> Dict Int (Maybe Player) -> Bool
+hasPlayerWon player board =
+    checkAllLines player board
 
 
-
--- @private
-
-
-checkAllLines : String -> List String -> Bool
-checkAllLines mark board =
+checkAllLines : Player -> Dict Int (Maybe Player) -> Bool
+checkAllLines player board =
     winningLines
-        |> List.map (\lines -> checkSingleLine mark lines board)
+        |> List.map (\lines -> checkSingleLine player lines board)
         |> List.filter ((==) True)
         |> List.isEmpty
         |> not
 
 
-
--- @private
-
-
-checkSingleLine : String -> List Int -> List String -> Bool
-checkSingleLine mark lines board =
+checkSingleLine : Player -> List Int -> Dict Int (Maybe Player) -> Bool
+checkSingleLine player lines board =
     lines
-        |> List.map (\index -> get index (Array.fromList board) |> Maybe.withDefault "")
-        |> List.filter (\x -> x == mark)
+        --    ?? needs case
+        |> List.map (\index -> get index (Array.fromList (Dict.values board)) |> Maybe.withDefault Nothing)
+        |> List.filter (\x -> x == player)
         |> List.length
-        |> (==) 3
+        |> (==) gridSize
 
 
-isATie : List String -> Bool
+isATie : Dict Int (Maybe Player) -> Bool
 isATie board =
-    isFull board && not (hasPlayerWon "X" board) && not (hasPlayerWon "O" board)
+    isFull board && not (hasPlayerWon Player.X board) && not (hasPlayerWon Player.O board)
+
+
+
+--    set (position - 1) mark (Array.fromList board)
+--        |> Array.toList
+-- @private
+--updateBoard : Int -> String -> List (Maybe Player) -> { grid : List String }
+--updateBoard position mark board =
+--    { grid = markBoard position mark board }
+-- CURRENT GRID
+--currentBoard : Dict Int (Maybe Player) -> Dict Int (Maybe Player)
+--currentBoard board =
+--    Board
+-- ACTIONS ON BOARD
