@@ -6,3 +6,5 @@ repl-temp-*
 .DS_Store
 # .idea folder
 .idea/
+# node
+node_modules/
