@@ -1,15 +1,21 @@
-module Board exposing (..)
+module Board exposing (availableMoves, getGrid, hasPlayerWon, initBoard, isATie, isFull, isValidMove, marksBoardIfValidMove)
 
 import Array exposing (..)
 import List
 import String
 
 
-board : { grid : List String, winningLines : List (List Int) }
-board =
-    { grid = initGrid
-    , winningLines = winningCombos
-    }
+type alias Board =
+    { grid : List String, winningLines : List (List Int) }
+
+
+initBoard : Board
+initBoard =
+    { grid = initGrid, winningLines = winningCombos }
+
+
+
+-- GRID INITIALISERS
 
 
 initGrid : List String
@@ -21,6 +27,10 @@ initGrid =
 gridSize : Int
 gridSize =
     3
+
+
+
+-- WINNING COMBINATIONS
 
 
 winningCombos : List (List Int)
@@ -36,9 +46,17 @@ winningCombos =
     ]
 
 
+
+-- CURRENT GRID
+
+
 getGrid : { grid : List String } -> List String
 getGrid boardRecord =
     List.map (\x -> x) boardRecord.grid
+
+
+
+-- ACTIONS ON BOARD
 
 
 marksBoardIfValidMove : Int -> String -> List String -> List String
@@ -55,10 +73,18 @@ isValidMove move currentBoard =
     List.member (String.fromInt move) (availableMoves currentBoard)
 
 
+
+--@private
+
+
 markBoard : Int -> String -> List String -> List String
 markBoard position mark currentBoard =
     set (position - 1) mark (Array.fromList currentBoard)
         |> Array.toList
+
+
+
+-- @private
 
 
 updateGrid : Int -> String -> List String -> { grid : List String }
@@ -81,13 +107,21 @@ hasPlayerWon mark currentBoard =
     checkAllLines mark currentBoard
 
 
+
+-- @private
+
+
 checkAllLines : String -> List String -> Bool
 checkAllLines mark currentBoard =
-    board.winningLines
+    initBoard.winningLines
         |> List.map (\lines -> checkSingleLine mark lines currentBoard)
         |> List.filter ((==) True)
         |> List.isEmpty
         |> not
+
+
+
+-- @private
 
 
 checkSingleLine : String -> List Int -> List String -> Bool

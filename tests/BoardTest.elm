@@ -1,13 +1,17 @@
 module BoardTest exposing (..)
 
-import Board exposing (board)
+import Board exposing (..)
 import Expect exposing (Expectation)
 import List
 import Test exposing (..)
 
 
+getBoard =
+    Board.initBoard
+
+
 boardGrid =
-    Board.getGrid { grid = board.grid }
+    Board.getGrid { grid = getBoard.grid }
 
 
 naught =
