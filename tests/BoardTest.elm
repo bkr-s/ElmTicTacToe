@@ -49,10 +49,14 @@ boardWithOAsTheWinner =
 suite : Test
 suite =
     describe "The Board module"
-        [ test "marks the board" <|
+        [ test "marks the board if the move is valid" <|
             \() ->
                 True
                     |> Expect.equal (List.member "X" (Board.marksBoardIfValidMove 1 "X" boardGrid))
+        , test "does not mark the board if the move is not valid" <|
+            \() ->
+                False
+                    |> Expect.equal (List.member "O" (Board.marksBoardIfValidMove 1 "O" <| Board.marksBoardIfValidMove 1 "X" boardGrid))
         , test "knows the available moves" <|
             \() ->
                 Expect.false "Exp: position 1 is unavailable" (List.member "1" <| Board.availableMoves <| Board.marksBoardIfValidMove 1 "X" boardGrid)
