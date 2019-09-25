@@ -1,16 +1,16 @@
-module BoardTest exposing (..)
+module BoardTest exposing (suite)
 
-import Board exposing (..)
+import Board as Board
 import Expect exposing (Expectation)
 import List
-import Test exposing (..)
+import Test exposing (Test, describe, test)
 
 
 boardGrid =
     Board.currentBoard { grid = Board.initBoard.grid }
 
 
-naught =
+nought =
     "O"
 
 
@@ -20,30 +20,30 @@ cross =
 
 fullBoardWithNoWinners =
     Board.marksBoardIfValidMove 7 cross <|
-        Board.marksBoardIfValidMove 9 naught <|
+        Board.marksBoardIfValidMove 9 nought <|
             Board.marksBoardIfValidMove 6 cross <|
-                Board.marksBoardIfValidMove 8 naught <|
+                Board.marksBoardIfValidMove 8 nought <|
                     Board.marksBoardIfValidMove 5 cross <|
-                        Board.marksBoardIfValidMove 4 naught <|
+                        Board.marksBoardIfValidMove 4 nought <|
                             Board.marksBoardIfValidMove 2 cross <|
-                                Board.marksBoardIfValidMove 3 naught <|
+                                Board.marksBoardIfValidMove 3 nought <|
                                     Board.marksBoardIfValidMove 1 cross boardGrid
 
 
 boardWithXAsTheWinner =
     Board.marksBoardIfValidMove 3 cross <|
-        Board.marksBoardIfValidMove 5 naught <|
+        Board.marksBoardIfValidMove 5 nought <|
             Board.marksBoardIfValidMove 2 cross <|
-                Board.marksBoardIfValidMove 4 naught <|
+                Board.marksBoardIfValidMove 4 nought <|
                     Board.marksBoardIfValidMove 1 cross boardGrid
 
 
 boardWithOAsTheWinner =
-    Board.marksBoardIfValidMove 7 naught <|
+    Board.marksBoardIfValidMove 7 nought <|
         Board.marksBoardIfValidMove 5 cross <|
-            Board.marksBoardIfValidMove 4 naught <|
+            Board.marksBoardIfValidMove 4 nought <|
                 Board.marksBoardIfValidMove 2 cross <|
-                    Board.marksBoardIfValidMove 1 naught boardGrid
+                    Board.marksBoardIfValidMove 1 nought boardGrid
 
 
 suite : Test
@@ -74,7 +74,7 @@ suite =
                 Expect.true "Exp: player 'X' has won" (Board.hasPlayerWon cross boardWithXAsTheWinner)
         , test "knows that 'O' has won" <|
             \() ->
-                Expect.true "Exp: player 'O' has won" (Board.hasPlayerWon naught boardWithOAsTheWinner)
+                Expect.true "Exp: player 'O' has won" (Board.hasPlayerWon nought boardWithOAsTheWinner)
         , test "knows the board is full and nobody has won" <|
             \() ->
                 Expect.true "Exp: a tied board" (Board.isATie fullBoardWithNoWinners)
