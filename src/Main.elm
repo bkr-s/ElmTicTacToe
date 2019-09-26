@@ -1,8 +1,10 @@
 module Main exposing (Model)
 
+import Array exposing (Array, get)
 import Board exposing (Board)
 import Dict
 import Html exposing (Html, div, h1, h2, li, text, ul)
+import Html.Attributes exposing (class)
 import Player exposing (Player)
 
 
@@ -20,45 +22,54 @@ initModel =
 
 
 
--- UPDATE
 -- VIEW
 
 
 view : Model -> Html msg
 view model =
-    div [] [ h1 [] [ text "Welcome To Tic Tac Toe" ], h2 [] [ text "Current board:" ], ul [] (List.map viewBoard (Dict.values model.board)), h2 [] [ text "Players: " ], ul [] (List.map viewPlayer [ model.currentPlayer, model.otherPlayer ]) ]
+    div []
+        [ h1 [] [ text "Welcome To Tic Tac Toe" ]
+        , h2 [] [ text "Current board:" ]
+        , div [ class "displayGrid" ]
+            [ displayGrid (List.map viewBoard (Dict.values model.board))
+            ]
+        ]
 
 
-viewBoard : Player -> Html msg
+viewBoard : Player -> String
 viewBoard player =
     case player of
         Player.X ->
-            li [] [ text "X" ]
+            "X"
 
         Player.O ->
-            li [] [ text "O" ]
+            "O"
 
         Player.Unclaimed ->
-            li [] [ text "blank" ]
+            "blank"
 
 
-viewPlayer : Player -> Html msg
-viewPlayer player =
-    case player of
-        Player.X ->
-            li [] [ text "X" ]
-
-        Player.O ->
-            li [] [ text "O" ]
-
-        Player.Unclaimed ->
-            li [] [ text "blank" ]
+displayGrid : List String -> Html msg
+displayGrid grid =
+    Array.fromList grid
+        |> formatBoxes
 
 
+formatBoxes : Array String -> Html msg
+formatBoxes allBoxes =
+    div []
+        [ div [ class "rowOne" ] [ text (Array.get 0 allBoxes |> Maybe.withDefault ""), text (Array.get 1 allBoxes |> Maybe.withDefault ""), text (Array.get 2 allBoxes |> Maybe.withDefault "") ]
+        , div [ class "rowTwo" ] [ text (Array.get 3 allBoxes |> Maybe.withDefault ""), text (Array.get 4 allBoxes |> Maybe.withDefault ""), text (Array.get 5 allBoxes |> Maybe.withDefault "") ]
+        , div [ class "rowThree" ] [ text (Array.get 6 allBoxes |> Maybe.withDefault ""), text (Array.get 7 allBoxes |> Maybe.withDefault ""), text (Array.get 8 allBoxes |> Maybe.withDefault "") ]
+        ]
 
---
+
+
+-- UPDATE
+-- MAIN
 
 
 main : Html msg
 main =
-    view initModel
+    view
+        initModel
