@@ -1,4 +1,4 @@
-module Board exposing (Board, availableMoves, hasPlayerWon, initBoard, isATie, isFull, isValidMove, marksBoardIfValidMove)
+module Board exposing (Board, availableMoves, hasPlayerWon, initBoard, isATie, isFull, isValidMove, markBoardIfValidMove)
 
 import Array exposing (..)
 import Dict exposing (Dict)
@@ -6,18 +6,23 @@ import List
 import Player exposing (Player)
 
 
+
+-- BOARD
+
+
 type alias Board =
-    Dict Int (Maybe Player)
+    Dict Int Player
 
 
-initBoard : Dict Int (Maybe Player)
+initBoard : Dict Int Player
 initBoard =
     initGrid
-        |> List.foldl (\index dict -> Dict.insert index Nothing dict) Dict.empty
+        |> List.foldl (\keyIndex valueDict -> Dict.insert keyIndex Player.Unclaimed valueDict) Dict.empty
 
 
 
--- GRID INITIALISERS
+--@PRIVATE FUNCTIONS
+---- init board
 
 
 initGrid : List Int
@@ -43,8 +48,13 @@ winningLines =
     ]
 
 
-marksBoardIfValidMove : Int -> Player -> Dict Int (Maybe Player) -> Dict Int (Maybe Player)
-marksBoardIfValidMove position player board =
+
+---- update
+-- UPDATE
+
+
+markBoardIfValidMove : Int -> Player -> Dict Int Player -> Dict Int Player
+markBoardIfValidMove position player board =
     if isValidMove position board then
         markBoard position player board
 
@@ -52,34 +62,47 @@ marksBoardIfValidMove position player board =
         board
 
 
-isValidMove : Int -> Dict Int (Maybe Player) -> Bool
+isValidMove : Int -> Dict Int Player -> Bool
 isValidMove position board =
     List.member position (availableMoves board)
 
 
-markBoard : Int -> Player -> Dict Int (Maybe Player) -> Dict Int (Maybe Player)
-markBoard position player board =
-    Dict.update position (player |> Just |> Just |> always) board
-
-
-availableMoves : Dict Int (Maybe Player) -> List Int
+availableMoves : Dict Int Player -> List Int
 availableMoves board =
     Dict.keys board
-        |> List.filter (\x -> Dict.get x board /= Nothing)
+        |> List.filter (\index -> Dict.get index board == Just Player.Unclaimed)
 
 
-isFull : Dict Int (Maybe Player) -> Bool
+
+--@private
+
+
+markBoard : Int -> Player -> Dict Int Player -> Dict Int Player
+markBoard position player board =
+    Dict.update position (\_ -> Just player) board
+
+
+isFull : Dict Int Player -> Bool
 isFull board =
     Dict.values board
-        |> List.all (\x -> x /= Nothing || x /= Nothing)
+        |> List.all (\x -> x /= Player.Unclaimed)
 
 
-hasPlayerWon : Player -> Dict Int (Maybe Player) -> Bool
+isATie : Dict Int Player -> Bool
+isATie board =
+    isFull board && not (hasPlayerWon Player.X board) && not (hasPlayerWon Player.O board)
+
+
+hasPlayerWon : Player -> Dict Int Player -> Bool
 hasPlayerWon player board =
     checkAllLines player board
 
 
-checkAllLines : Player -> Dict Int (Maybe Player) -> Bool
+
+--@private
+
+
+checkAllLines : Player -> Dict Int Player -> Bool
 checkAllLines player board =
     winningLines
         |> List.map (\lines -> checkSingleLine player lines board)
@@ -88,30 +111,14 @@ checkAllLines player board =
         |> not
 
 
-checkSingleLine : Player -> List Int -> Dict Int (Maybe Player) -> Bool
+
+--@private
+
+
+checkSingleLine : Player -> List Int -> Dict Int Player -> Bool
 checkSingleLine player lines board =
     lines
-        --    ?? needs case
-        |> List.map (\index -> get index (Array.fromList (Dict.values board)) |> Maybe.withDefault Nothing)
+        |> List.map (\index -> get index (Array.fromList (Dict.values board)) |> Maybe.withDefault Player.Unclaimed)
         |> List.filter (\x -> x == player)
         |> List.length
         |> (==) gridSize
-
-
-isATie : Dict Int (Maybe Player) -> Bool
-isATie board =
-    isFull board && not (hasPlayerWon Player.X board) && not (hasPlayerWon Player.O board)
-
-
-
---    set (position - 1) mark (Array.fromList board)
---        |> Array.toList
--- @private
---updateBoard : Int -> String -> List (Maybe Player) -> { grid : List String }
---updateBoard position mark board =
---    { grid = markBoard position mark board }
--- CURRENT GRID
---currentBoard : Dict Int (Maybe Player) -> Dict Int (Maybe Player)
---currentBoard board =
---    Board
--- ACTIONS ON BOARD
