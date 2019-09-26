@@ -1,49 +1,51 @@
 module BoardTest exposing (suite)
 
 import Board as Board
+import Dict exposing (values)
 import Expect exposing (Expectation)
 import List
+import Player
 import Test exposing (Test, describe, test)
 
 
 boardGrid =
-    Board.currentBoard { grid = Board.initBoard.grid }
+    Board.initBoard
 
 
 nought =
-    "O"
+    Player.O
 
 
 cross =
-    "X"
+    Player.X
 
 
 fullBoardWithNoWinners =
-    Board.marksBoardIfValidMove 7 cross <|
-        Board.marksBoardIfValidMove 9 nought <|
-            Board.marksBoardIfValidMove 6 cross <|
-                Board.marksBoardIfValidMove 8 nought <|
-                    Board.marksBoardIfValidMove 5 cross <|
-                        Board.marksBoardIfValidMove 4 nought <|
-                            Board.marksBoardIfValidMove 2 cross <|
-                                Board.marksBoardIfValidMove 3 nought <|
-                                    Board.marksBoardIfValidMove 1 cross boardGrid
+    Board.markBoardIfValidMove 7 cross <|
+        Board.markBoardIfValidMove 9 nought <|
+            Board.markBoardIfValidMove 6 cross <|
+                Board.markBoardIfValidMove 8 nought <|
+                    Board.markBoardIfValidMove 5 cross <|
+                        Board.markBoardIfValidMove 4 nought <|
+                            Board.markBoardIfValidMove 2 cross <|
+                                Board.markBoardIfValidMove 3 nought <|
+                                    Board.markBoardIfValidMove 1 cross boardGrid
 
 
 boardWithXAsTheWinner =
-    Board.marksBoardIfValidMove 3 cross <|
-        Board.marksBoardIfValidMove 5 nought <|
-            Board.marksBoardIfValidMove 2 cross <|
-                Board.marksBoardIfValidMove 4 nought <|
-                    Board.marksBoardIfValidMove 1 cross boardGrid
+    Board.markBoardIfValidMove 3 cross <|
+        Board.markBoardIfValidMove 5 nought <|
+            Board.markBoardIfValidMove 2 cross <|
+                Board.markBoardIfValidMove 4 nought <|
+                    Board.markBoardIfValidMove 1 cross boardGrid
 
 
 boardWithOAsTheWinner =
-    Board.marksBoardIfValidMove 7 nought <|
-        Board.marksBoardIfValidMove 5 cross <|
-            Board.marksBoardIfValidMove 4 nought <|
-                Board.marksBoardIfValidMove 2 cross <|
-                    Board.marksBoardIfValidMove 1 nought boardGrid
+    Board.markBoardIfValidMove 7 nought <|
+        Board.markBoardIfValidMove 5 cross <|
+            Board.markBoardIfValidMove 4 nought <|
+                Board.markBoardIfValidMove 2 cross <|
+                    Board.markBoardIfValidMove 1 nought boardGrid
 
 
 suite : Test
@@ -52,20 +54,20 @@ suite =
         [ test "marks the board if the move is valid" <|
             \() ->
                 True
-                    |> Expect.equal (List.member "X" (Board.marksBoardIfValidMove 1 "X" boardGrid))
+                    |> Expect.equal (List.member cross (Dict.values (Board.markBoardIfValidMove 1 cross boardGrid)))
         , test "does not mark the board if the move is not valid" <|
             \() ->
                 False
-                    |> Expect.equal (List.member "O" (Board.marksBoardIfValidMove 1 "O" <| Board.marksBoardIfValidMove 1 "X" boardGrid))
+                    |> Expect.equal (List.member nought (values (Board.markBoardIfValidMove 1 nought <| Board.markBoardIfValidMove 1 cross boardGrid)))
         , test "knows the available moves" <|
             \() ->
-                Expect.false "Exp: position 1 is unavailable" (List.member "1" <| Board.availableMoves <| Board.marksBoardIfValidMove 1 "X" boardGrid)
+                Expect.false "Exp: position 1 is unavailable" (List.member 1 <| Board.availableMoves <| Board.markBoardIfValidMove 1 cross boardGrid)
         , test "knows when a move is valid" <|
             \() ->
                 Expect.true "Exp: valid move" (Board.isValidMove 1 boardGrid)
         , test "knows when a move is not valid" <|
             \() ->
-                Expect.false "Exp: invalid move" (Board.isValidMove 2 <| Board.marksBoardIfValidMove 2 "O" boardGrid)
+                Expect.false "Exp: invalid move" (Board.isValidMove 2 <| Board.markBoardIfValidMove 2 nought boardGrid)
         , test "knows that the board is full" <|
             \() ->
                 Expect.true "Exp: board is full" (Board.isFull fullBoardWithNoWinners)
