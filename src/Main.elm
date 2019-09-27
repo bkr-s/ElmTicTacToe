@@ -46,7 +46,7 @@ viewBoard player =
             "O"
 
         Player.Unclaimed ->
-            "blank"
+            ""
 
 
 displayGrid : List String -> Html Msg
