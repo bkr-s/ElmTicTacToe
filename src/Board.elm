@@ -1,4 +1,4 @@
-module Board exposing (Board, availableMoves, hasPlayerWon, initBoard, isATie, isFull, isValidMove, markBoardIfValidMove)
+module Board exposing (Board, availableMoves, hasPlayerWon, initBoard, isATie, isFull, isValidMove, markBoard)
 
 import Array exposing (..)
 import Dict exposing (Dict)
@@ -14,15 +14,15 @@ type alias Board =
     Dict Int Player
 
 
-initBoard : Dict Int Player
+initBoard : Board
 initBoard =
     initGrid
         |> List.foldl (\keyIndex valueDict -> Dict.insert keyIndex Player.Unclaimed valueDict) Dict.empty
 
 
 
---@PRIVATE FUNCTIONS
----- init board
+---- INIT BOARD
+--@private functions
 
 
 initGrid : List Int
@@ -49,37 +49,22 @@ winningLines =
 
 
 
----- update
 -- UPDATE
 
 
-markBoardIfValidMove : Int -> Player -> Dict Int Player -> Dict Int Player
-markBoardIfValidMove position player board =
-    if isValidMove position board then
-        markBoard position player board
-
-    else
-        board
-
-
-isValidMove : Int -> Dict Int Player -> Bool
+isValidMove : Int -> Board -> Bool
 isValidMove position board =
     List.member position (availableMoves board)
 
 
-availableMoves : Dict Int Player -> List Int
-availableMoves board =
-    Dict.keys board
-        |> List.filter (\index -> Dict.get index board == Just Player.Unclaimed)
-
-
-
---@private
-
-
-markBoard : Int -> Player -> Dict Int Player -> Dict Int Player
+markBoard : Int -> Player -> Board -> Board
 markBoard position player board =
     Dict.update position (\_ -> Just player) board
+
+
+hasPlayerWon : Player -> Board -> Bool
+hasPlayerWon player board =
+    checkAllLines player board
 
 
 isFull : Dict Int Player -> Bool
@@ -88,21 +73,22 @@ isFull board =
         |> List.all (\x -> x /= Player.Unclaimed)
 
 
-isATie : Dict Int Player -> Bool
+isATie : Board -> Bool
 isATie board =
     isFull board && not (hasPlayerWon Player.X board) && not (hasPlayerWon Player.O board)
 
 
-hasPlayerWon : Player -> Dict Int Player -> Bool
-hasPlayerWon player board =
-    checkAllLines player board
+
+--@private functions
 
 
+availableMoves : Board -> List Int
+availableMoves board =
+    Dict.keys board
+        |> List.filter (\index -> Dict.get index board == Just Player.Unclaimed)
 
---@private
 
-
-checkAllLines : Player -> Dict Int Player -> Bool
+checkAllLines : Player -> Board -> Bool
 checkAllLines player board =
     winningLines
         |> List.map (\lines -> checkSingleLine player lines board)
@@ -111,11 +97,7 @@ checkAllLines player board =
         |> not
 
 
-
---@private
-
-
-checkSingleLine : Player -> List Int -> Dict Int Player -> Bool
+checkSingleLine : Player -> List Int -> Board -> Bool
 checkSingleLine player lines board =
     lines
         |> List.map (\index -> get index (Array.fromList (Dict.values board)) |> Maybe.withDefault Player.Unclaimed)
