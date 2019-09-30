@@ -14,7 +14,7 @@ type alias Board =
     Dict Int Player
 
 
-initBoard : Dict Int Player
+initBoard : Board
 initBoard =
     initGrid
         |> List.foldl (\keyIndex valueDict -> Dict.insert keyIndex Player.Unclaimed valueDict) Dict.empty
@@ -53,7 +53,7 @@ winningLines =
 -- UPDATE
 
 
-markBoardIfValidMove : Int -> Player -> Dict Int Player -> Dict Int Player
+markBoardIfValidMove : Int -> Player -> Dict Int Player -> Board
 markBoardIfValidMove position player board =
     if isValidMove position board then
         markBoard position player board
@@ -62,12 +62,12 @@ markBoardIfValidMove position player board =
         board
 
 
-isValidMove : Int -> Dict Int Player -> Bool
+isValidMove : Int -> Board -> Bool
 isValidMove position board =
     List.member position (availableMoves board)
 
 
-availableMoves : Dict Int Player -> List Int
+availableMoves : Board -> List Int
 availableMoves board =
     Dict.keys board
         |> List.filter (\index -> Dict.get index board == Just Player.Unclaimed)
@@ -77,7 +77,7 @@ availableMoves board =
 --@private
 
 
-markBoard : Int -> Player -> Dict Int Player -> Dict Int Player
+markBoard : Int -> Player -> Board -> Board
 markBoard position player board =
     Dict.update position (\_ -> Just player) board
 
@@ -88,12 +88,12 @@ isFull board =
         |> List.all (\x -> x /= Player.Unclaimed)
 
 
-isATie : Dict Int Player -> Bool
+isATie : Board -> Bool
 isATie board =
     isFull board && not (hasPlayerWon Player.X board) && not (hasPlayerWon Player.O board)
 
 
-hasPlayerWon : Player -> Dict Int Player -> Bool
+hasPlayerWon : Player -> Board -> Bool
 hasPlayerWon player board =
     checkAllLines player board
 
@@ -102,7 +102,7 @@ hasPlayerWon player board =
 --@private
 
 
-checkAllLines : Player -> Dict Int Player -> Bool
+checkAllLines : Player -> Board -> Bool
 checkAllLines player board =
     winningLines
         |> List.map (\lines -> checkSingleLine player lines board)
@@ -115,7 +115,7 @@ checkAllLines player board =
 --@private
 
 
-checkSingleLine : Player -> List Int -> Dict Int Player -> Bool
+checkSingleLine : Player -> List Int -> Board -> Bool
 checkSingleLine player lines board =
     lines
         |> List.map (\index -> get index (Array.fromList (Dict.values board)) |> Maybe.withDefault Player.Unclaimed)
