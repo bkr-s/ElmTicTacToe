@@ -1,4 +1,4 @@
-module Board exposing (Board, availableMoves, hasPlayerWon, initBoard, isATie, isFull, isValidMove, markBoardIfValidMove)
+module Board exposing (Board, availableMoves, hasPlayerWon, initBoard, isATie, isFull, isValidMove, markBoard)
 
 import Array exposing (..)
 import Dict exposing (Dict)
@@ -21,8 +21,8 @@ initBoard =
 
 
 
---@PRIVATE FUNCTIONS
----- init board
+---- INIT BOARD
+--@private functions
 
 
 initGrid : List Int
@@ -49,17 +49,7 @@ winningLines =
 
 
 
----- update
 -- UPDATE
-
-
-markBoardIfValidMove : Int -> Player -> Dict Int Player -> Board
-markBoardIfValidMove position player board =
-    if isValidMove position board then
-        markBoard position player board
-
-    else
-        board
 
 
 isValidMove : Int -> Board -> Bool
@@ -67,19 +57,14 @@ isValidMove position board =
     List.member position (availableMoves board)
 
 
-availableMoves : Board -> List Int
-availableMoves board =
-    Dict.keys board
-        |> List.filter (\index -> Dict.get index board == Just Player.Unclaimed)
-
-
-
---@private
-
-
 markBoard : Int -> Player -> Board -> Board
 markBoard position player board =
     Dict.update position (\_ -> Just player) board
+
+
+hasPlayerWon : Player -> Board -> Bool
+hasPlayerWon player board =
+    checkAllLines player board
 
 
 isFull : Dict Int Player -> Bool
@@ -93,13 +78,14 @@ isATie board =
     isFull board && not (hasPlayerWon Player.X board) && not (hasPlayerWon Player.O board)
 
 
-hasPlayerWon : Player -> Board -> Bool
-hasPlayerWon player board =
-    checkAllLines player board
+
+--@private functions
 
 
-
---@private
+availableMoves : Board -> List Int
+availableMoves board =
+    Dict.keys board
+        |> List.filter (\index -> Dict.get index board == Just Player.Unclaimed)
 
 
 checkAllLines : Player -> Board -> Bool
@@ -109,10 +95,6 @@ checkAllLines player board =
         |> List.filter ((==) True)
         |> List.isEmpty
         |> not
-
-
-
---@private
 
 
 checkSingleLine : Player -> List Int -> Board -> Bool

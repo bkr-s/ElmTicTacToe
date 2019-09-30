@@ -21,53 +21,49 @@ cross =
 
 
 fullBoardWithNoWinners =
-    Board.markBoardIfValidMove 7 cross <|
-        Board.markBoardIfValidMove 9 nought <|
-            Board.markBoardIfValidMove 6 cross <|
-                Board.markBoardIfValidMove 8 nought <|
-                    Board.markBoardIfValidMove 5 cross <|
-                        Board.markBoardIfValidMove 4 nought <|
-                            Board.markBoardIfValidMove 2 cross <|
-                                Board.markBoardIfValidMove 3 nought <|
-                                    Board.markBoardIfValidMove 1 cross boardGrid
+    Board.markBoard 7 cross <|
+        Board.markBoard 9 nought <|
+            Board.markBoard 6 cross <|
+                Board.markBoard 8 nought <|
+                    Board.markBoard 5 cross <|
+                        Board.markBoard 4 nought <|
+                            Board.markBoard 2 cross <|
+                                Board.markBoard 3 nought <|
+                                    Board.markBoard 1 cross boardGrid
 
 
 boardWithXAsTheWinner =
-    Board.markBoardIfValidMove 3 cross <|
-        Board.markBoardIfValidMove 5 nought <|
-            Board.markBoardIfValidMove 2 cross <|
-                Board.markBoardIfValidMove 4 nought <|
-                    Board.markBoardIfValidMove 1 cross boardGrid
+    Board.markBoard 3 cross <|
+        Board.markBoard 5 nought <|
+            Board.markBoard 2 cross <|
+                Board.markBoard 4 nought <|
+                    Board.markBoard 1 cross boardGrid
 
 
 boardWithOAsTheWinner =
-    Board.markBoardIfValidMove 7 nought <|
-        Board.markBoardIfValidMove 5 cross <|
-            Board.markBoardIfValidMove 4 nought <|
-                Board.markBoardIfValidMove 2 cross <|
-                    Board.markBoardIfValidMove 1 nought boardGrid
+    Board.markBoard 7 nought <|
+        Board.markBoard 5 cross <|
+            Board.markBoard 4 nought <|
+                Board.markBoard 2 cross <|
+                    Board.markBoard 1 nought boardGrid
 
 
 suite : Test
 suite =
     describe "The Board module"
-        [ test "marks the board if the move is valid" <|
+        [ test "marks the board" <|
             \() ->
                 True
-                    |> Expect.equal (List.member cross (Dict.values (Board.markBoardIfValidMove 1 cross boardGrid)))
-        , test "does not mark the board if the move is not valid" <|
-            \() ->
-                False
-                    |> Expect.equal (List.member nought (values (Board.markBoardIfValidMove 1 nought <| Board.markBoardIfValidMove 1 cross boardGrid)))
+                    |> Expect.equal (List.member cross (Dict.values (Board.markBoard 1 cross boardGrid)))
         , test "knows the available moves" <|
             \() ->
-                Expect.false "Exp: position 1 is unavailable" (List.member 1 <| Board.availableMoves <| Board.markBoardIfValidMove 1 cross boardGrid)
+                Expect.false "Exp: position 1 is unavailable" (List.member 1 <| Board.availableMoves <| Board.markBoard 1 cross boardGrid)
         , test "knows when a move is valid" <|
             \() ->
                 Expect.true "Exp: valid move" (Board.isValidMove 1 boardGrid)
         , test "knows when a move is not valid" <|
             \() ->
-                Expect.false "Exp: invalid move" (Board.isValidMove 2 <| Board.markBoardIfValidMove 2 nought boardGrid)
+                Expect.false "Exp: invalid move" (Board.isValidMove 2 <| Board.markBoard 2 nought boardGrid)
         , test "knows that the board is full" <|
             \() ->
                 Expect.true "Exp: board is full" (Board.isFull fullBoardWithNoWinners)
