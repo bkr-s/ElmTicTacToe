@@ -15,12 +15,19 @@ import Player exposing (Player)
 
 
 type alias Model =
-    { board : Board, currentPlayer : Player, otherPlayer : Player }
+    { board : Board, currentPlayer : Player, otherPlayer : Player, tempBoard : Board, status : GameStatus }
 
 
 initModel : Model
 initModel =
-    { board = Board.initBoard, currentPlayer = Player.X, otherPlayer = Player.O }
+    { board = Board.initBoard, currentPlayer = Player.X, otherPlayer = Player.O, tempBoard = Board.initBoard, status = NewGame }
+
+
+type GameStatus
+    = NewGame
+    | InProgress
+    | Winner Player
+    | Drawn
 
 
 
@@ -60,19 +67,19 @@ formatBoxes : Array String -> Html Msg
 formatBoxes allBoxes =
     div []
         [ div [ padRow ]
-            [ button [ onClick (AddPlayerMark 1) ] [ text (Array.get 0 allBoxes |> Maybe.withDefault "") ]
-            , button [ onClick (AddPlayerMark 2) ] [ text (Array.get 1 allBoxes |> Maybe.withDefault "") ]
-            , button [ onClick (AddPlayerMark 3) ] [ text (Array.get 2 allBoxes |> Maybe.withDefault "") ]
+            [ button [ onClick (TakeTurn 1) ] [ text (Array.get 0 allBoxes |> Maybe.withDefault "") ]
+            , button [ onClick (TakeTurn 2) ] [ text (Array.get 1 allBoxes |> Maybe.withDefault "") ]
+            , button [ onClick (TakeTurn 3) ] [ text (Array.get 2 allBoxes |> Maybe.withDefault "") ]
             ]
         , div [ padRow ]
-            [ button [ onClick (AddPlayerMark 4) ] [ text (Array.get 3 allBoxes |> Maybe.withDefault "") ]
-            , button [ onClick (AddPlayerMark 5) ] [ text (Array.get 4 allBoxes |> Maybe.withDefault "") ]
-            , button [ onClick (AddPlayerMark 6) ] [ text (Array.get 5 allBoxes |> Maybe.withDefault "") ]
+            [ button [ onClick (TakeTurn 4) ] [ text (Array.get 3 allBoxes |> Maybe.withDefault "") ]
+            , button [ onClick (TakeTurn 5) ] [ text (Array.get 4 allBoxes |> Maybe.withDefault "") ]
+            , button [ onClick (TakeTurn 6) ] [ text (Array.get 5 allBoxes |> Maybe.withDefault "") ]
             ]
         , div [ padRow ]
-            [ button [ onClick (AddPlayerMark 7) ] [ text (Array.get 6 allBoxes |> Maybe.withDefault "") ]
-            , button [ onClick (AddPlayerMark 8) ] [ text (Array.get 7 allBoxes |> Maybe.withDefault "") ]
-            , button [ onClick (AddPlayerMark 9) ] [ text (Array.get 8 allBoxes |> Maybe.withDefault "") ]
+            [ button [ onClick (TakeTurn 7) ] [ text (Array.get 6 allBoxes |> Maybe.withDefault "") ]
+            , button [ onClick (TakeTurn 8) ] [ text (Array.get 7 allBoxes |> Maybe.withDefault "") ]
+            , button [ onClick (TakeTurn 9) ] [ text (Array.get 8 allBoxes |> Maybe.withDefault "") ]
             ]
         ]
 
@@ -97,23 +104,53 @@ font =
 
 
 type Msg
-    = AddPlayerMark Int
+    = TakeTurn Int
+    | ResetGame
     | NoOp
 
 
 update : Msg -> Model -> Model
 update msg model =
     case msg of
-        AddPlayerMark position ->
-            { model | board = markBoard position model.currentPlayer model.board, currentPlayer = model.otherPlayer, otherPlayer = model.currentPlayer }
+        TakeTurn position ->
+            if (model.status == InProgress || model.status == NewGame) && Board.isValidMove position model.board then
+                { model | board = Board.markBoard position model.currentPlayer model.board }
+                    |> checkStatus
+
+            else
+                model
+
+        ResetGame ->
+            initModel
 
         NoOp ->
             model
 
 
-markBoard : Int -> Player -> Board -> Board
-markBoard position player board =
-    Board.markBoardIfValidMove position player board
+checkStatus : Model -> Model
+checkStatus ({ board, currentPlayer, otherPlayer } as model) =
+    let
+        isWinningPlayer =
+            Board.hasPlayerWon currentPlayer board
+
+        isDrawnGame =
+            Board.isATie board
+
+        ( newStatus, newCurrent, newOther ) =
+            case ( isWinningPlayer, isDrawnGame ) of
+                ( True, False ) ->
+                    ( Winner currentPlayer, currentPlayer, otherPlayer )
+
+                ( False, True ) ->
+                    ( Drawn, currentPlayer, otherPlayer )
+
+                ( False, False ) ->
+                    ( InProgress, otherPlayer, currentPlayer )
+
+                ( _, _ ) ->
+                    ( NewGame, otherPlayer, currentPlayer )
+    in
+    { model | status = newStatus, currentPlayer = newCurrent, otherPlayer = newOther }
 
 
 
