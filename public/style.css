@@ -1,18 +1,113 @@
-h1 {
-  text-align: center;
-  font-size: 2.5rem;
-  margin-bottom: 3%;
-}
+@import url('https://fonts.googleapis.com/css?family=Anton&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Roboto:400,900&display=swap');
 
-.message {
-    font-family: sans-serif;
+body {
+    font-size: 2rem;
+    font-family: 'Roboto', sans-serif
 }
-
 
 #container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  flex-wrap: wrap;
-  text-align: center;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    text-align: center;
+}
+
+h1 {
+    margin-bottom: 3%;
+    font-family: 'Anton', sans-serif;
+    font-weight: bold;
+    text-align: center;
+}
+
+#game-information {
+    width: 45vw;
+}
+
+#welcome-message {
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
+    text-align: center;
+}
+
+#game-menu {
+    justify-content: center;
+    text-align: center;
+    text-decoration: none;
+}
+
+#two-pl-button {
+    margin: auto 2%;
+    margin-top: 1vh;
+    margin-bottom: 2vh;
+    padding: 1%;
+    border-radius: 6px;
+    border: none;
+    background-color: #A0C1B9;
+    font-size: 2rem;
+    font-weight: bold;
+    font-size: 16px;
+    width: 45%;
+}
+
+#easy-pc-button {
+    margin: 0 2%;
+    margin-top: 1vh;
+    margin-bottom: 2vh;
+    padding: 1%;
+    border-radius: 6px;
+    border: none;
+    background-color: #A0C1B9;
+    font-size: 2rem;
+    font-weight: bold;
+    font-size: 16px;
+    width: 45%;
+}
+
+button:focus {
+    outline: 0;
+}
+
+#game-status-message {
+    margin-top: 1vh;
+    margin-bottom: 1vh;
+    font-size: 4rem;
+    font-family: 'Anton', sans-serif;
+}
+
+.board {
+    display: grid;
+    align-items: center;
+    text-align: center;
+    width: 45vw;
+    height: 90vh;
+    margin: 0 auto;
+    padding: 2%;
+    background-color: #3F7779;
+    border: 6px solid #2F595B;
+    border-radius: 10px;
+    color: #fff;
+}
+
+.board-row {
+    display: flex;
+    justify-content: center;
+}
+
+.board-cell {
+    justify-content: center;
+    align-items: center;
+    height: 15vw;
+    width: 15vw;
+    border: 6px solid #2F595B;
+    border-radius: 12px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: bold;
+    font-size: 9vw;
+    text-transform: uppercase;
 }

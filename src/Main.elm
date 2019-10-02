@@ -45,9 +45,11 @@ type Msg
 view : Model -> Html Msg
 view model =
     div [ id "container" ]
-        [ viewWelcomeMessage model
-        , viewGameMenu model
-        , viewGameStatus model
+        [ div [ id "game-information" ]
+            [ viewWelcomeMessage model
+            , viewGameMenu model
+            , viewGameStatus model
+            ]
         , div []
             [ viewBoard (List.map showPlayer (Dict.values model.board))
             ]
@@ -60,16 +62,16 @@ viewWelcomeMessage model =
         welcomeMessage =
             case model.status of
                 Playing ->
-                    text ""
+                    text " "
 
                 Winner _ ->
-                    text ""
+                    text " "
 
                 Drawn ->
-                    text ""
+                    text " "
 
                 NewGame ->
-                    text "Welcome To Tic Tac Toe"
+                    text "Tic Tac Toe"
     in
     h1 [ class "message", id "welcome-message" ] [ welcomeMessage ]
 
@@ -80,21 +82,21 @@ viewGameMenu model =
         newGameButtons =
             case model.status of
                 Playing ->
-                    text ""
+                    div []
+                        [ text " " ]
 
                 _ ->
                     div []
-                        [ text "Start new game: "
-                        , buttonNewGame "2 Player" HumanVsHuman
-                        , buttonNewGame "1 Player (Easy)" HumanVsEasyComputer
+                        [ buttonNewGame "two-pl-button" "2 Player" HumanVsHuman
+                        , buttonNewGame "easy-pc-button" "1 Player (Easy)" HumanVsEasyComputer
                         ]
     in
     div [ class "message", id "game-menu" ] [ newGameButtons ]
 
 
-buttonNewGame : String -> Msg -> Html Msg
-buttonNewGame buttonText msg =
-    button [ class "new-game-button", onClick msg ] [ text buttonText ]
+buttonNewGame : String -> String -> Msg -> Html Msg
+buttonNewGame buttonId buttonText msg =
+    button [ id buttonId, onClick msg ] [ text buttonText ]
 
 
 viewGameStatus : Model -> Html Msg
@@ -140,19 +142,19 @@ formatCells : Array String -> Html Msg
 formatCells allCells =
     div [ class "board" ]
         [ div [ class "board-row" ]
-            [ button [ onClick (TakeTurn 1) ] [ text (currentPlayerValue allCells 0) ]
-            , button [ onClick (TakeTurn 2) ] [ text (currentPlayerValue allCells 1) ]
-            , button [ onClick (TakeTurn 3) ] [ text (currentPlayerValue allCells 2) ]
+            [ button [ class "board-cell", onClick (TakeTurn 1) ] [ text (currentPlayerValue allCells 0) ]
+            , button [ class "board-cell", onClick (TakeTurn 2) ] [ text (currentPlayerValue allCells 1) ]
+            , button [ class "board-cell", onClick (TakeTurn 3) ] [ text (currentPlayerValue allCells 2) ]
             ]
         , div [ class "board-row" ]
-            [ button [ onClick (TakeTurn 4) ] [ text (currentPlayerValue allCells 3) ]
-            , button [ onClick (TakeTurn 5) ] [ text (currentPlayerValue allCells 4) ]
-            , button [ onClick (TakeTurn 6) ] [ text (currentPlayerValue allCells 5) ]
+            [ button [ class "board-cell", onClick (TakeTurn 4) ] [ text (currentPlayerValue allCells 3) ]
+            , button [ class "board-cell", onClick (TakeTurn 5) ] [ text (currentPlayerValue allCells 4) ]
+            , button [ class "board-cell", onClick (TakeTurn 6) ] [ text (currentPlayerValue allCells 5) ]
             ]
         , div [ class "board-row" ]
-            [ button [ onClick (TakeTurn 7) ] [ text (currentPlayerValue allCells 6) ]
-            , button [ onClick (TakeTurn 8) ] [ text (currentPlayerValue allCells 7) ]
-            , button [ onClick (TakeTurn 9) ] [ text (currentPlayerValue allCells 8) ]
+            [ button [ class "board-cell", onClick (TakeTurn 7) ] [ text (currentPlayerValue allCells 6) ]
+            , button [ class "board-cell", onClick (TakeTurn 8) ] [ text (currentPlayerValue allCells 7) ]
+            , button [ class "board-cell", onClick (TakeTurn 9) ] [ text (currentPlayerValue allCells 8) ]
             ]
         ]
 
