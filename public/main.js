@@ -8767,10 +8767,29 @@ var elm$core$List$append = F2(
 var elm$core$List$concat = function (lists) {
 	return A3(elm$core$List$foldr, elm$core$List$append, _List_Nil, lists);
 };
+<<<<<<< Updated upstream
 var elm$core$List$concatMap = F2(
 	function (f, list) {
 		return elm$core$List$concat(
 			A2(elm$core$List$map, f, list));
+=======
+var author$project$Main$HumanVsEasyComputer = {$: 'HumanVsEasyComputer'};
+var author$project$Main$HumanVsHuman = {$: 'HumanVsHuman'};
+var elm$html$Html$Attributes$id = elm$html$Html$Attributes$stringProperty('id');
+var author$project$Main$buttonNewGame = F3(
+	function (buttonId, buttonText, msg) {
+		return A2(
+			elm$html$Html$button,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$id(buttonId),
+					elm$html$Html$Events$onClick(msg)
+				]),
+			_List_fromArray(
+				[
+					elm$html$Html$text(buttonText)
+				]));
+>>>>>>> Stashed changes
 	});
 var elm$browser$Debugger$Metadata$collectBadUnions = F3(
 	function (name, _n0, list) {
@@ -8785,9 +8804,19 @@ var elm$browser$Debugger$Metadata$collectBadUnions = F3(
 		} else {
 			var problems = _n1;
 			return A2(
+<<<<<<< Updated upstream
 				elm$core$List$cons,
 				A2(elm$browser$Debugger$Metadata$ProblemType, name, problems),
 				list);
+=======
+				elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						A3(author$project$Main$buttonNewGame, 'two-pl-button', '2 Player', author$project$Main$HumanVsHuman),
+						A3(author$project$Main$buttonNewGame, 'easy-pc-button', '1 Player (Easy)', author$project$Main$HumanVsEasyComputer)
+					]));
+>>>>>>> Stashed changes
 		}
 	});
 var elm$core$Dict$foldl = F3(
@@ -9407,6 +9436,7 @@ var elm$browser$Debugger$Metadata$encodeAlias = function (_n0) {
 				elm$json$Json$Encode$string(tipe))
 			]));
 };
+<<<<<<< Updated upstream
 var elm$browser$Debugger$Metadata$encodeDict = F2(
 	function (f, dict) {
 		return elm$json$Json$Encode$object(
@@ -9423,6 +9453,25 @@ var elm$browser$Debugger$Metadata$encodeUnion = function (_n0) {
 	var args = _n0.args;
 	var tags = _n0.tags;
 	return elm$json$Json$Encode$object(
+=======
+var elm$html$Html$h1 = _VirtualDom_node('h1');
+var author$project$Main$viewWelcomeMessage = function (model) {
+	var welcomeMessage = function () {
+		var _n0 = model.status;
+		switch (_n0.$) {
+			case 'Playing':
+				return elm$html$Html$text(' ');
+			case 'Winner':
+				return elm$html$Html$text(' ');
+			case 'Drawn':
+				return elm$html$Html$text(' ');
+			default:
+				return elm$html$Html$text('Tic Tac Toe');
+		}
+	}();
+	return A2(
+		elm$html$Html$h1,
+>>>>>>> Stashed changes
 		_List_fromArray(
 			[
 				_Utils_Tuple2(
@@ -9470,12 +9519,38 @@ var elm$browser$Debugger$Metadata$encode = function (_n0) {
 	return elm$json$Json$Encode$object(
 		_List_fromArray(
 			[
+<<<<<<< Updated upstream
 				_Utils_Tuple2(
 				'versions',
 				elm$browser$Debugger$Metadata$encodeVersions(versions)),
 				_Utils_Tuple2(
 				'types',
 				elm$browser$Debugger$Metadata$encodeTypes(types))
+=======
+				A2(
+				elm$html$Html$div,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$id('game-information')
+					]),
+				_List_fromArray(
+					[
+						author$project$Main$viewWelcomeMessage(model),
+						author$project$Main$viewGameMenu(model),
+						author$project$Main$viewGameStatus(model)
+					])),
+				A2(
+				elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						author$project$Main$viewBoard(
+						A2(
+							elm$core$List$map,
+							author$project$Main$showPlayer,
+							elm$core$Dict$values(model.board)))
+					]))
+>>>>>>> Stashed changes
 			]));
 };
 var elm$browser$Debugger$Main$download = F2(
