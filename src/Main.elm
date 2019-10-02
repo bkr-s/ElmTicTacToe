@@ -4,6 +4,7 @@ import Array exposing (Array)
 import Board exposing (Board)
 import Browser
 import Dict
+import GameStatus exposing (GameStatus(..), checkGameStatus)
 import Html exposing (Attribute, Html, button, div, h1, h4, text)
 import Html.Attributes exposing (class, id)
 import Html.Events exposing (onClick)
@@ -20,14 +21,7 @@ type alias Model =
 
 init : Model
 init =
-    { board = Board.initBoard, currentPlayer = Player.X, computerPlayer = Nothing, status = NewGame }
-
-
-type GameStatus
-    = NewGame
-    | Playing
-    | Winner Player
-    | Drawn
+    { board = Board.initialBoard, currentPlayer = Player.X, computerPlayer = Nothing, status = NewGame }
 
 
 type Msg
@@ -46,21 +40,21 @@ view : Model -> Html Msg
 view model =
     div [ id "container" ]
         [ div [ id "game-information" ]
-            [ viewWelcomeMessage model
-            , viewGameMenu model
-            , viewGameStatus model
+            [ viewWelcomeMessage model.status
+            , viewGameMenu model.status
+            , viewGameStatus model.status model.currentPlayer
             ]
         , div []
-            [ viewBoard (List.map showPlayer (Dict.values model.board))
+            [ viewBoard (List.map Player.showPlayer (Dict.values model.board))
             ]
         ]
 
 
-viewWelcomeMessage : Model -> Html Msg
-viewWelcomeMessage model =
+viewWelcomeMessage : GameStatus -> Html Msg
+viewWelcomeMessage status =
     let
         welcomeMessage =
-            case model.status of
+            case status of
                 Playing ->
                     text " "
 
@@ -76,11 +70,11 @@ viewWelcomeMessage model =
     h1 [ class "message", id "welcome-message" ] [ welcomeMessage ]
 
 
-viewGameMenu : Model -> Html Msg
-viewGameMenu model =
+viewGameMenu : GameStatus -> Html Msg
+viewGameMenu status =
     let
         newGameButtons =
-            case model.status of
+            case status of
                 Playing ->
                     div []
                         [ text " " ]
@@ -88,7 +82,7 @@ viewGameMenu model =
                 _ ->
                     div []
                         [ buttonNewGame "two-pl-button" "2 Player" HumanVsHuman
-                        , buttonNewGame "easy-pc-button" "1 Player (Easy)" HumanVsEasyComputer
+                        , buttonNewGame "easy-ai-button" "1 Player (Easy)" HumanVsEasyComputer
                         ]
     in
     div [ class "message", id "game-menu" ] [ newGameButtons ]
@@ -99,16 +93,16 @@ buttonNewGame buttonId buttonText msg =
     button [ id buttonId, onClick msg ] [ text buttonText ]
 
 
-viewGameStatus : Model -> Html Msg
-viewGameStatus model =
+viewGameStatus : GameStatus -> Player -> Html Msg
+viewGameStatus status currentPlayer =
     let
         gameStatusMessage =
-            case model.status of
+            case status of
                 Playing ->
                     [ text "" ]
 
                 Winner _ ->
-                    [ text (showPlayer model.currentPlayer), text " wins!!" ]
+                    [ text (Player.showPlayer currentPlayer), text " wins!!" ]
 
                 Drawn ->
                     [ text "It's a tie!" ]
@@ -117,19 +111,6 @@ viewGameStatus model =
                     [ text "" ]
     in
     h4 [ class "message", id "game-status-message" ] gameStatusMessage
-
-
-showPlayer : Player -> String
-showPlayer player =
-    case player of
-        Player.X ->
-            "X"
-
-        Player.O ->
-            "O"
-
-        Player.Unclaimed ->
-            ""
 
 
 viewBoard : List String -> Html Msg
@@ -142,26 +123,21 @@ formatCells : Array String -> Html Msg
 formatCells allCells =
     div [ class "board" ]
         [ div [ class "board-row" ]
-            [ button [ class "board-cell", onClick (TakeTurn 1) ] [ text (currentPlayerValue allCells 0) ]
-            , button [ class "board-cell", onClick (TakeTurn 2) ] [ text (currentPlayerValue allCells 1) ]
-            , button [ class "board-cell", onClick (TakeTurn 3) ] [ text (currentPlayerValue allCells 2) ]
+            [ button [ class "board-cell", onClick (TakeTurn 1) ] [ text (Player.value allCells 0) ]
+            , button [ class "board-cell", onClick (TakeTurn 2) ] [ text (Player.value allCells 1) ]
+            , button [ class "board-cell", onClick (TakeTurn 3) ] [ text (Player.value allCells 2) ]
             ]
         , div [ class "board-row" ]
-            [ button [ class "board-cell", onClick (TakeTurn 4) ] [ text (currentPlayerValue allCells 3) ]
-            , button [ class "board-cell", onClick (TakeTurn 5) ] [ text (currentPlayerValue allCells 4) ]
-            , button [ class "board-cell", onClick (TakeTurn 6) ] [ text (currentPlayerValue allCells 5) ]
+            [ button [ class "board-cell", onClick (TakeTurn 4) ] [ text (Player.value allCells 3) ]
+            , button [ class "board-cell", onClick (TakeTurn 5) ] [ text (Player.value allCells 4) ]
+            , button [ class "board-cell", onClick (TakeTurn 6) ] [ text (Player.value allCells 5) ]
             ]
         , div [ class "board-row" ]
-            [ button [ class "board-cell", onClick (TakeTurn 7) ] [ text (currentPlayerValue allCells 6) ]
-            , button [ class "board-cell", onClick (TakeTurn 8) ] [ text (currentPlayerValue allCells 7) ]
-            , button [ class "board-cell", onClick (TakeTurn 9) ] [ text (currentPlayerValue allCells 8) ]
+            [ button [ class "board-cell", onClick (TakeTurn 7) ] [ text (Player.value allCells 6) ]
+            , button [ class "board-cell", onClick (TakeTurn 8) ] [ text (Player.value allCells 7) ]
+            , button [ class "board-cell", onClick (TakeTurn 9) ] [ text (Player.value allCells 8) ]
             ]
         ]
-
-
-currentPlayerValue : Array String -> Int -> String
-currentPlayerValue grid index =
-    Array.get index grid |> Maybe.withDefault ""
 
 
 
@@ -180,17 +156,17 @@ update msg model =
         TakeTurn position ->
             let
                 newModel =
-                    if canContinueGame model && Board.isValidMove position model.board then
+                    if GameStatus.canContinueGame model.status && Board.isValidMove position model.board then
                         { model | board = Board.markBoard position model.currentPlayer model.board }
-                            |> checkGameStatus
+                            |> updateStatus
 
                     else
                         model
 
                 addComputerMoveIfRelevant =
-                    if isComputerTurn newModel && canContinueGame newModel then
+                    if isComputerTurn newModel && GameStatus.canContinueGame newModel.status then
                         getComputerMove newModel
-                            |> checkGameStatus
+                            |> updateStatus
 
                     else
                         newModel
@@ -204,48 +180,13 @@ update msg model =
             model
 
 
-canContinueGame : Model -> Bool
-canContinueGame model =
-    model.status == Playing || model.status == NewGame
-
-
-checkGameStatus : Model -> Model
-checkGameStatus ({ board, currentPlayer } as model) =
+updateStatus : Model -> Model
+updateStatus ({ board, currentPlayer } as model) =
     let
-        isWinningPlayer =
-            Board.hasPlayerWon currentPlayer board
-
-        isDrawnGame =
-            Board.isATie board
-
         ( newStatus, newCurrentPlayer ) =
-            case ( isWinningPlayer, isDrawnGame ) of
-                ( True, False ) ->
-                    ( Winner currentPlayer, currentPlayer )
-
-                ( False, True ) ->
-                    ( Drawn, currentPlayer )
-
-                ( False, False ) ->
-                    ( Playing, getOpponent currentPlayer )
-
-                ( _, _ ) ->
-                    ( NewGame, currentPlayer )
+            checkGameStatus model.board model.currentPlayer
     in
     { model | status = newStatus, currentPlayer = newCurrentPlayer }
-
-
-getOpponent : Player -> Player
-getOpponent player =
-    case player of
-        Player.X ->
-            Player.O
-
-        Player.O ->
-            Player.X
-
-        Player.Unclaimed ->
-            Player.Unclaimed
 
 
 isComputerTurn : Model -> Bool
