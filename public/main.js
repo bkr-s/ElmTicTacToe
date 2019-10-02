@@ -6097,6 +6097,26 @@ var author$project$Main$update = F2(
 				return model;
 		}
 	});
+var author$project$Main$showPlayer = function (player) {
+	switch (player.$) {
+		case 'X':
+			return 'X';
+		case 'O':
+			return 'O';
+		default:
+			return '';
+	}
+};
+var author$project$Main$TakeTurn = function (a) {
+	return {$: 'TakeTurn', a: a};
+};
+var author$project$Main$currentPlayerValue = F2(
+	function (grid, index) {
+		return A2(
+			elm$core$Maybe$withDefault,
+			'',
+			A2(elm$core$Array$get, index, grid));
+	});
 var elm$core$Basics$identity = function (x) {
 	return x;
 };
@@ -6340,34 +6360,19 @@ var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 			return 3;
 	}
 };
-var elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
-var elm$html$Html$Attributes$style = elm$virtual_dom$VirtualDom$style;
-var author$project$Main$centreAlign = A2(elm$html$Html$Attributes$style, 'text-align', 'center');
-var author$project$Main$showPlayer = function (player) {
-	switch (player.$) {
-		case 'X':
-			return 'X';
-		case 'O':
-			return 'O';
-		default:
-			return '';
-	}
-};
-var author$project$Main$TakeTurn = function (a) {
-	return {$: 'TakeTurn', a: a};
-};
-var author$project$Main$currentPlayerValue = F2(
-	function (grid, index) {
-		return A2(
-			elm$core$Maybe$withDefault,
-			'',
-			A2(elm$core$Array$get, index, grid));
-	});
-var author$project$Main$padRow = A2(elm$html$Html$Attributes$style, 'padding', '0.5em');
 var elm$html$Html$button = _VirtualDom_node('button');
 var elm$html$Html$div = _VirtualDom_node('div');
 var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
+var elm$json$Json$Encode$string = _Json_wrap;
+var elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			elm$json$Json$Encode$string(string));
+	});
+var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('className');
 var elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -6388,13 +6393,18 @@ var elm$html$Html$Events$onClick = function (msg) {
 var author$project$Main$formatCells = function (allCells) {
 	return A2(
 		elm$html$Html$div,
-		_List_Nil,
+		_List_fromArray(
+			[
+				elm$html$Html$Attributes$class('board')
+			]),
 		_List_fromArray(
 			[
 				A2(
 				elm$html$Html$div,
 				_List_fromArray(
-					[author$project$Main$padRow]),
+					[
+						elm$html$Html$Attributes$class('board-row')
+					]),
 				_List_fromArray(
 					[
 						A2(
@@ -6437,7 +6447,9 @@ var author$project$Main$formatCells = function (allCells) {
 				A2(
 				elm$html$Html$div,
 				_List_fromArray(
-					[author$project$Main$padRow]),
+					[
+						elm$html$Html$Attributes$class('board-row')
+					]),
 				_List_fromArray(
 					[
 						A2(
@@ -6480,7 +6492,9 @@ var author$project$Main$formatCells = function (allCells) {
 				A2(
 				elm$html$Html$div,
 				_List_fromArray(
-					[author$project$Main$padRow]),
+					[
+						elm$html$Html$Attributes$class('board-row')
+					]),
 				_List_fromArray(
 					[
 						A2(
@@ -6528,22 +6542,13 @@ var author$project$Main$viewBoard = function (grid) {
 };
 var author$project$Main$HumanVsEasyComputer = {$: 'HumanVsEasyComputer'};
 var author$project$Main$HumanVsHuman = {$: 'HumanVsHuman'};
-var elm$json$Json$Encode$string = _Json_wrap;
-var elm$html$Html$Attributes$stringProperty = F2(
-	function (key, string) {
-		return A2(
-			_VirtualDom_property,
-			key,
-			elm$json$Json$Encode$string(string));
-	});
-var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('className');
 var author$project$Main$buttonNewGame = F2(
 	function (buttonText, msg) {
 		return A2(
 			elm$html$Html$button,
 			_List_fromArray(
 				[
-					elm$html$Html$Attributes$class('newGame'),
+					elm$html$Html$Attributes$class('new-game-button'),
 					elm$html$Html$Events$onClick(msg)
 				]),
 			_List_fromArray(
@@ -6551,6 +6556,7 @@ var author$project$Main$buttonNewGame = F2(
 					elm$html$Html$text(buttonText)
 				]));
 	});
+var elm$html$Html$Attributes$id = elm$html$Html$Attributes$stringProperty('id');
 var author$project$Main$viewGameMenu = function (model) {
 	var newGameButtons = function () {
 		var _n0 = model.status;
@@ -6559,8 +6565,7 @@ var author$project$Main$viewGameMenu = function (model) {
 		} else {
 			return A2(
 				elm$html$Html$div,
-				_List_fromArray(
-					[author$project$Main$centreAlign]),
+				_List_Nil,
 				_List_fromArray(
 					[
 						elm$html$Html$text('Start new game: '),
@@ -6573,12 +6578,12 @@ var author$project$Main$viewGameMenu = function (model) {
 		elm$html$Html$div,
 		_List_fromArray(
 			[
-				elm$html$Html$Attributes$class('gameMenu')
+				elm$html$Html$Attributes$class('message'),
+				elm$html$Html$Attributes$id('game-menu')
 			]),
 		_List_fromArray(
 			[newGameButtons]));
 };
-var author$project$Main$font = A2(elm$html$Html$Attributes$style, 'font-family', 'sans-serif');
 var elm$html$Html$h4 = _VirtualDom_node('h4');
 var author$project$Main$viewGameStatus = function (model) {
 	var gameStatusMessage = function () {
@@ -6611,7 +6616,10 @@ var author$project$Main$viewGameStatus = function (model) {
 	return A2(
 		elm$html$Html$h4,
 		_List_fromArray(
-			[author$project$Main$centreAlign, author$project$Main$font]),
+			[
+				elm$html$Html$Attributes$class('message'),
+				elm$html$Html$Attributes$id('game-status-message')
+			]),
 		gameStatusMessage);
 };
 var elm$html$Html$h1 = _VirtualDom_node('h1');
@@ -6632,14 +6640,20 @@ var author$project$Main$viewWelcomeMessage = function (model) {
 	return A2(
 		elm$html$Html$h1,
 		_List_fromArray(
-			[author$project$Main$centreAlign, author$project$Main$font]),
+			[
+				elm$html$Html$Attributes$class('message'),
+				elm$html$Html$Attributes$id('welcome-message')
+			]),
 		_List_fromArray(
 			[welcomeMessage]));
 };
 var author$project$Main$view = function (model) {
 	return A2(
 		elm$html$Html$div,
-		_List_Nil,
+		_List_fromArray(
+			[
+				elm$html$Html$Attributes$id('container')
+			]),
 		_List_fromArray(
 			[
 				author$project$Main$viewWelcomeMessage(model),
@@ -6647,11 +6661,7 @@ var author$project$Main$view = function (model) {
 				author$project$Main$viewGameStatus(model),
 				A2(
 				elm$html$Html$div,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('viewBoard'),
-						author$project$Main$centreAlign
-					]),
+				_List_Nil,
 				_List_fromArray(
 					[
 						author$project$Main$viewBoard(
@@ -6950,6 +6960,8 @@ var elm$browser$Debugger$Overlay$viewBadMetadata = function (_n0) {
 };
 var elm$browser$Debugger$Overlay$Cancel = {$: 'Cancel'};
 var elm$browser$Debugger$Overlay$Proceed = {$: 'Proceed'};
+var elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
+var elm$html$Html$Attributes$style = elm$virtual_dom$VirtualDom$style;
 var elm$browser$Debugger$Overlay$viewButtons = function (buttons) {
 	var btn = F2(
 		function (msg, string) {
@@ -6995,7 +7007,6 @@ var elm$browser$Debugger$Overlay$viewButtons = function (buttons) {
 };
 var elm$virtual_dom$VirtualDom$map = _VirtualDom_map;
 var elm$html$Html$map = elm$virtual_dom$VirtualDom$map;
-var elm$html$Html$Attributes$id = elm$html$Html$Attributes$stringProperty('id');
 var elm$browser$Debugger$Overlay$viewMessage = F4(
 	function (config, title, details, buttons) {
 		return A2(
