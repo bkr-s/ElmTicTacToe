@@ -5,7 +5,7 @@ import Board exposing (Board)
 import Browser
 import Dict
 import Html exposing (Attribute, Html, button, div, h1, h4, text)
-import Html.Attributes exposing (class, style)
+import Html.Attributes exposing (class, id)
 import Html.Events exposing (onClick)
 import Player exposing (Player)
 
@@ -44,11 +44,11 @@ type Msg
 
 view : Model -> Html Msg
 view model =
-    div []
+    div [ id "container" ]
         [ viewWelcomeMessage model
         , viewGameMenu model
         , viewGameStatus model
-        , div [ class "viewBoard", centreAlign ]
+        , div []
             [ viewBoard (List.map showPlayer (Dict.values model.board))
             ]
         ]
@@ -71,7 +71,7 @@ viewWelcomeMessage model =
                 NewGame ->
                     text "Welcome To Tic Tac Toe"
     in
-    h1 [ centreAlign, font ] [ welcomeMessage ]
+    h1 [ class "message", id "welcome-message" ] [ welcomeMessage ]
 
 
 viewGameMenu : Model -> Html Msg
@@ -83,18 +83,18 @@ viewGameMenu model =
                     text ""
 
                 _ ->
-                    div [ centreAlign ]
+                    div []
                         [ text "Start new game: "
                         , buttonNewGame "2 Player" HumanVsHuman
                         , buttonNewGame "1 Player (Easy)" HumanVsEasyComputer
                         ]
     in
-    div [ class "gameMenu" ] [ newGameButtons ]
+    div [ class "message", id "game-menu" ] [ newGameButtons ]
 
 
 buttonNewGame : String -> Msg -> Html Msg
 buttonNewGame buttonText msg =
-    button [ class "newGame", onClick msg ] [ text buttonText ]
+    button [ class "new-game-button", onClick msg ] [ text buttonText ]
 
 
 viewGameStatus : Model -> Html Msg
@@ -114,7 +114,7 @@ viewGameStatus model =
                 NewGame ->
                     [ text "" ]
     in
-    h4 [ centreAlign, font ] gameStatusMessage
+    h4 [ class "message", id "game-status-message" ] gameStatusMessage
 
 
 showPlayer : Player -> String
@@ -138,18 +138,18 @@ viewBoard grid =
 
 formatCells : Array String -> Html Msg
 formatCells allCells =
-    div []
-        [ div [ padRow ]
+    div [ class "board" ]
+        [ div [ class "board-row" ]
             [ button [ onClick (TakeTurn 1) ] [ text (currentPlayerValue allCells 0) ]
             , button [ onClick (TakeTurn 2) ] [ text (currentPlayerValue allCells 1) ]
             , button [ onClick (TakeTurn 3) ] [ text (currentPlayerValue allCells 2) ]
             ]
-        , div [ padRow ]
+        , div [ class "board-row" ]
             [ button [ onClick (TakeTurn 4) ] [ text (currentPlayerValue allCells 3) ]
             , button [ onClick (TakeTurn 5) ] [ text (currentPlayerValue allCells 4) ]
             , button [ onClick (TakeTurn 6) ] [ text (currentPlayerValue allCells 5) ]
             ]
-        , div [ padRow ]
+        , div [ class "board-row" ]
             [ button [ onClick (TakeTurn 7) ] [ text (currentPlayerValue allCells 6) ]
             , button [ onClick (TakeTurn 8) ] [ text (currentPlayerValue allCells 7) ]
             , button [ onClick (TakeTurn 9) ] [ text (currentPlayerValue allCells 8) ]
@@ -160,21 +160,6 @@ formatCells allCells =
 currentPlayerValue : Array String -> Int -> String
 currentPlayerValue grid index =
     Array.get index grid |> Maybe.withDefault ""
-
-
-font : Attribute a
-font =
-    style "font-family" "sans-serif"
-
-
-centreAlign : Attribute a
-centreAlign =
-    style "text-align" "center"
-
-
-padRow : Attribute a
-padRow =
-    style "padding" "0.5em"
 
 
 
