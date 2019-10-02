@@ -1,4 +1,4 @@
-module Board exposing (Board, availableMoves, hasPlayerWon, initBoard, isATie, isFull, isValidMove, markBoard)
+module Board exposing (Board, availableMoves, hasPlayerWon, initialBoard, isATie, isFull, isValidMove, markBoard)
 
 import Array exposing (..)
 import Dict exposing (Dict)
@@ -6,22 +6,18 @@ import List
 import Player exposing (Player)
 
 
-
--- BOARD
-
-
 type alias Board =
     Dict Int Player
 
 
-initBoard : Board
-initBoard =
+initialBoard : Board
+initialBoard =
     initGrid
         |> List.foldl (\keyIndex valueDict -> Dict.insert keyIndex Player.Unclaimed valueDict) Dict.empty
 
 
 
----- INIT BOARD
+-- INIT BOARD
 --@private functions
 
 
@@ -64,7 +60,7 @@ markBoard position player board =
 
 hasPlayerWon : Player -> Board -> Bool
 hasPlayerWon player board =
-    checkAllLines player board
+    checkAllLinesForAWinningPlayer player board
 
 
 isFull : Dict Int Player -> Bool
@@ -88,17 +84,17 @@ availableMoves board =
         |> List.filter (\index -> Dict.get index board == Just Player.Unclaimed)
 
 
-checkAllLines : Player -> Board -> Bool
-checkAllLines player board =
+checkAllLinesForAWinningPlayer : Player -> Board -> Bool
+checkAllLinesForAWinningPlayer player board =
     winningLines
-        |> List.map (\lines -> checkSingleLine player lines board)
+        |> List.map (\lines -> checkSingleLineForAWinningPlayer player lines board)
         |> List.filter ((==) True)
         |> List.isEmpty
         |> not
 
 
-checkSingleLine : Player -> List Int -> Board -> Bool
-checkSingleLine player lines board =
+checkSingleLineForAWinningPlayer : Player -> List Int -> Board -> Bool
+checkSingleLineForAWinningPlayer player lines board =
     lines
         |> List.map (\index -> get index (Array.fromList (Dict.values board)) |> Maybe.withDefault Player.Unclaimed)
         |> List.filter (\x -> x == player)
