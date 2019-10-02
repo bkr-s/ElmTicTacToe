@@ -18,8 +18,8 @@ type alias Model =
     { board : Board, currentPlayer : Player, computerPlayer : Maybe Player, status : GameStatus }
 
 
-initialModel : Model
-initialModel =
+init : Model
+init =
     { board = Board.initBoard, currentPlayer = Player.X, computerPlayer = Nothing, status = NewGame }
 
 
@@ -185,10 +185,10 @@ update : Msg -> Model -> Model
 update msg model =
     case msg of
         HumanVsHuman ->
-            { initialModel | status = Playing }
+            { init | status = Playing }
 
         HumanVsEasyComputer ->
-            { initialModel | computerPlayer = Just Player.O, status = Playing }
+            { init | computerPlayer = Just Player.O, status = Playing }
 
         TakeTurn position ->
             let
@@ -211,7 +211,7 @@ update msg model =
             addComputerMoveIfRelevant
 
         ResetGame ->
-            initialModel
+            init
 
         NoOp ->
             model
@@ -302,7 +302,7 @@ computerSelectsRandomMove availablePositions =
 main : Program () Model Msg
 main =
     Browser.sandbox
-        { init = initialModel
+        { init = init
         , view = view
         , update = update
         }
