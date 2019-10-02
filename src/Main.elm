@@ -4,7 +4,7 @@ import Array exposing (Array)
 import Board exposing (Board)
 import Browser
 import Dict
-import Html exposing (Attribute, Html, button, div, h1, text)
+import Html exposing (Attribute, Html, button, div, h1, h4, text)
 import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
 import Player exposing (Player)
@@ -45,16 +45,37 @@ type Msg
 view : Model -> Html Msg
 view model =
     div []
-        [ h1 [ centreAlign, font ] [ text "Welcome To Tic Tac Toe" ]
-        , displayGameMenu model
-        , div [ class "displayGrid", centreAlign ]
-            [ displayGrid (List.map showPlayerAtPosition (Dict.values model.board))
+        [ viewWelcomeMessage model
+        , viewGameMenu model
+        , viewGameStatus model
+        , div [ class "viewBoard", centreAlign ]
+            [ viewBoard (List.map showPlayer (Dict.values model.board))
             ]
         ]
 
 
-displayGameMenu : Model -> Html Msg
-displayGameMenu model =
+viewWelcomeMessage : Model -> Html Msg
+viewWelcomeMessage model =
+    let
+        welcomeMessage =
+            case model.status of
+                Playing ->
+                    text ""
+
+                Winner _ ->
+                    text ""
+
+                Drawn ->
+                    text ""
+
+                NewGame ->
+                    text "Welcome To Tic Tac Toe"
+    in
+    h1 [ centreAlign, font ] [ welcomeMessage ]
+
+
+viewGameMenu : Model -> Html Msg
+viewGameMenu model =
     let
         newGameButtons =
             case model.status of
@@ -71,8 +92,33 @@ displayGameMenu model =
     div [ class "gameMenu" ] [ newGameButtons ]
 
 
-showPlayerAtPosition : Player -> String
-showPlayerAtPosition player =
+buttonNewGame : String -> Msg -> Html Msg
+buttonNewGame buttonText msg =
+    button [ class "newGame", onClick msg ] [ text buttonText ]
+
+
+viewGameStatus : Model -> Html Msg
+viewGameStatus model =
+    let
+        gameStatusMessage =
+            case model.status of
+                Playing ->
+                    [ text "" ]
+
+                Winner _ ->
+                    [ text (showPlayer model.currentPlayer), text " wins!!" ]
+
+                Drawn ->
+                    [ text "It's a tie!" ]
+
+                NewGame ->
+                    [ text "" ]
+    in
+    h4 [ centreAlign, font ] gameStatusMessage
+
+
+showPlayer : Player -> String
+showPlayer player =
     case player of
         Player.X ->
             "X"
@@ -84,36 +130,36 @@ showPlayerAtPosition player =
             ""
 
 
-displayGrid : List String -> Html Msg
-displayGrid grid =
+viewBoard : List String -> Html Msg
+viewBoard grid =
     Array.fromList grid
-        |> formatBoxes
+        |> formatCells
 
 
-formatBoxes : Array String -> Html Msg
-formatBoxes allBoxes =
+formatCells : Array String -> Html Msg
+formatCells allCells =
     div []
         [ div [ padRow ]
-            [ button [ onClick (TakeTurn 1) ] [ text (currentPlayerValue allBoxes 0) ]
-            , button [ onClick (TakeTurn 2) ] [ text (currentPlayerValue allBoxes 1) ]
-            , button [ onClick (TakeTurn 3) ] [ text (currentPlayerValue allBoxes 2) ]
+            [ button [ onClick (TakeTurn 1) ] [ text (currentPlayerValue allCells 0) ]
+            , button [ onClick (TakeTurn 2) ] [ text (currentPlayerValue allCells 1) ]
+            , button [ onClick (TakeTurn 3) ] [ text (currentPlayerValue allCells 2) ]
             ]
         , div [ padRow ]
-            [ button [ onClick (TakeTurn 4) ] [ text (currentPlayerValue allBoxes 3) ]
-            , button [ onClick (TakeTurn 5) ] [ text (currentPlayerValue allBoxes 4) ]
-            , button [ onClick (TakeTurn 6) ] [ text (currentPlayerValue allBoxes 5) ]
+            [ button [ onClick (TakeTurn 4) ] [ text (currentPlayerValue allCells 3) ]
+            , button [ onClick (TakeTurn 5) ] [ text (currentPlayerValue allCells 4) ]
+            , button [ onClick (TakeTurn 6) ] [ text (currentPlayerValue allCells 5) ]
             ]
         , div [ padRow ]
-            [ button [ onClick (TakeTurn 7) ] [ text (currentPlayerValue allBoxes 6) ]
-            , button [ onClick (TakeTurn 8) ] [ text (currentPlayerValue allBoxes 7) ]
-            , button [ onClick (TakeTurn 9) ] [ text (currentPlayerValue allBoxes 8) ]
+            [ button [ onClick (TakeTurn 7) ] [ text (currentPlayerValue allCells 6) ]
+            , button [ onClick (TakeTurn 8) ] [ text (currentPlayerValue allCells 7) ]
+            , button [ onClick (TakeTurn 9) ] [ text (currentPlayerValue allCells 8) ]
             ]
         ]
 
 
 currentPlayerValue : Array String -> Int -> String
-currentPlayerValue gridArray index =
-    Array.get index gridArray |> Maybe.withDefault ""
+currentPlayerValue grid index =
+    Array.get index grid |> Maybe.withDefault ""
 
 
 font : Attribute a
@@ -147,7 +193,7 @@ update msg model =
         TakeTurn position ->
             let
                 newModel =
-                    if canContinue model && Board.isValidMove position model.board then
+                    if canContinueGame model && Board.isValidMove position model.board then
                         { model | board = Board.markBoard position model.currentPlayer model.board }
                             |> checkGameStatus
 
@@ -155,7 +201,7 @@ update msg model =
                         model
 
                 addComputerMoveIfRelevant =
-                    if isComputerTurn newModel && canContinue newModel then
+                    if isComputerTurn newModel && canContinueGame newModel then
                         getComputerMove newModel
                             |> checkGameStatus
 
@@ -171,13 +217,8 @@ update msg model =
             model
 
 
-buttonNewGame : String -> Msg -> Html Msg
-buttonNewGame buttonText msg =
-    button [ class "newGame", onClick msg ] [ text buttonText ]
-
-
-canContinue : Model -> Bool
-canContinue model =
+canContinueGame : Model -> Bool
+canContinueGame model =
     model.status == Playing || model.status == NewGame
 
 
@@ -190,7 +231,7 @@ checkGameStatus ({ board, currentPlayer } as model) =
         isDrawnGame =
             Board.isATie board
 
-        ( newStatus, newCurrent ) =
+        ( newStatus, newCurrentPlayer ) =
             case ( isWinningPlayer, isDrawnGame ) of
                 ( True, False ) ->
                     ( Winner currentPlayer, currentPlayer )
@@ -202,9 +243,9 @@ checkGameStatus ({ board, currentPlayer } as model) =
                     ( Playing, getOpponent currentPlayer )
 
                 ( _, _ ) ->
-                    ( NewGame, Player.X )
+                    ( NewGame, currentPlayer )
     in
-    { model | status = newStatus, currentPlayer = newCurrent }
+    { model | status = newStatus, currentPlayer = newCurrentPlayer }
 
 
 getOpponent : Player -> Player
