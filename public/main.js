@@ -4588,7 +4588,7 @@ var elm$core$List$foldl = F3(
 			}
 		}
 	});
-var author$project$Board$initBoard = A3(
+var author$project$Board$initialBoard = A3(
 	elm$core$List$foldl,
 	F2(
 		function (keyIndex, valueDict) {
@@ -4596,10 +4596,10 @@ var author$project$Board$initBoard = A3(
 		}),
 	elm$core$Dict$empty,
 	author$project$Board$initGrid);
-var author$project$Main$NewGame = {$: 'NewGame'};
+var author$project$GameStatus$NewGame = {$: 'NewGame'};
 var author$project$Player$X = {$: 'X'};
 var elm$core$Maybe$Nothing = {$: 'Nothing'};
-var author$project$Main$init = {board: author$project$Board$initBoard, computerPlayer: elm$core$Maybe$Nothing, currentPlayer: author$project$Player$X, status: author$project$Main$NewGame};
+var author$project$Main$init = {board: author$project$Board$initialBoard, computerPlayer: elm$core$Maybe$Nothing, currentPlayer: author$project$Player$X, status: author$project$GameStatus$NewGame};
 var elm$core$Basics$eq = _Utils_equal;
 var elm$core$Maybe$Just = function (a) {
 	return {$: 'Just', a: a};
@@ -5139,10 +5139,53 @@ var author$project$Board$markBoard = F3(
 			},
 			board);
 	});
-var author$project$Main$Playing = {$: 'Playing'};
+var author$project$GameStatus$Playing = {$: 'Playing'};
 var elm$core$Basics$or = _Basics_or;
-var author$project$Main$canContinueGame = function (model) {
-	return _Utils_eq(model.status, author$project$Main$Playing) || _Utils_eq(model.status, author$project$Main$NewGame);
+var author$project$GameStatus$canContinueGame = function (status) {
+	return _Utils_eq(status, author$project$GameStatus$Playing) || _Utils_eq(status, author$project$GameStatus$NewGame);
+};
+var elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return elm$core$Maybe$Just(x);
+	} else {
+		return elm$core$Maybe$Nothing;
+	}
+};
+var author$project$Main$computerSelectsRandomMove = function (availablePositions) {
+	return elm$core$List$head(availablePositions);
+};
+var author$project$Main$getComputerMove = function (model) {
+	var _n0 = author$project$Main$computerSelectsRandomMove(
+		author$project$Board$availableMoves(model.board));
+	if (_n0.$ === 'Just') {
+		var move = _n0.a;
+		return _Utils_update(
+			model,
+			{
+				board: A3(author$project$Board$markBoard, move, model.currentPlayer, model.board)
+			});
+	} else {
+		return model;
+	}
+};
+var author$project$Main$isComputerPlayer = F2(
+	function (currentPlayer, model) {
+		var _n0 = model.computerPlayer;
+		if (_n0.$ === 'Just') {
+			var computerPlayer = _n0.a;
+			return _Utils_eq(currentPlayer, computerPlayer);
+		} else {
+			return false;
+		}
+	});
+var elm$core$Basics$and = _Basics_and;
+var author$project$Main$isComputerTurn = function (model) {
+	var board = model.board;
+	var currentPlayer = model.currentPlayer;
+	var computerPlayer = model.computerPlayer;
+	return (A2(author$project$Main$isComputerPlayer, currentPlayer, model) && _Utils_eq(model.status, author$project$GameStatus$Playing)) ? true : false;
 };
 var elm$core$Array$Array_elm_builtin = F4(
 	function (a, b, c, d) {
@@ -5362,7 +5405,7 @@ var elm$core$Maybe$withDefault = F2(
 			return _default;
 		}
 	});
-var author$project$Board$checkSingleLine = F3(
+var author$project$Board$checkSingleLineForAWinningPlayer = F3(
 	function (player, lines, board) {
 		return _Utils_eq(
 			author$project$Board$gridSize,
@@ -5413,7 +5456,7 @@ var elm$core$List$isEmpty = function (xs) {
 		return false;
 	}
 };
-var author$project$Board$checkAllLines = F2(
+var author$project$Board$checkAllLinesForAWinningPlayer = F2(
 	function (player, board) {
 		return !elm$core$List$isEmpty(
 			A2(
@@ -5422,13 +5465,13 @@ var author$project$Board$checkAllLines = F2(
 				A2(
 					elm$core$List$map,
 					function (lines) {
-						return A3(author$project$Board$checkSingleLine, player, lines, board);
+						return A3(author$project$Board$checkSingleLineForAWinningPlayer, player, lines, board);
 					},
 					author$project$Board$winningLines)));
 	});
 var author$project$Board$hasPlayerWon = F2(
 	function (player, board) {
-		return A2(author$project$Board$checkAllLines, player, board);
+		return A2(author$project$Board$checkAllLinesForAWinningPlayer, player, board);
 	});
 var elm$core$Basics$neq = _Utils_notEqual;
 var elm$core$Basics$composeL = F3(
@@ -5452,15 +5495,14 @@ var author$project$Board$isFull = function (board) {
 		elm$core$Dict$values(board));
 };
 var author$project$Player$O = {$: 'O'};
-var elm$core$Basics$and = _Basics_and;
 var author$project$Board$isATie = function (board) {
 	return author$project$Board$isFull(board) && ((!A2(author$project$Board$hasPlayerWon, author$project$Player$X, board)) && (!A2(author$project$Board$hasPlayerWon, author$project$Player$O, board)));
 };
-var author$project$Main$Drawn = {$: 'Drawn'};
-var author$project$Main$Winner = function (a) {
+var author$project$GameStatus$Drawn = {$: 'Drawn'};
+var author$project$GameStatus$Winner = function (a) {
 	return {$: 'Winner', a: a};
 };
-var author$project$Main$getOpponent = function (player) {
+var author$project$Player$getOpponent = function (player) {
 	switch (player.$) {
 		case 'X':
 			return author$project$Player$O;
@@ -5470,78 +5512,43 @@ var author$project$Main$getOpponent = function (player) {
 			return author$project$Player$Unclaimed;
 	}
 };
-var author$project$Main$checkGameStatus = function (model) {
+var author$project$GameStatus$checkGameStatus = F2(
+	function (board, currentPlayer) {
+		var isWinningPlayer = A2(author$project$Board$hasPlayerWon, currentPlayer, board);
+		var isDrawnGame = author$project$Board$isATie(board);
+		var _n0 = function () {
+			var _n1 = _Utils_Tuple2(isWinningPlayer, isDrawnGame);
+			if (_n1.a) {
+				if (!_n1.b) {
+					return _Utils_Tuple2(
+						author$project$GameStatus$Winner(currentPlayer),
+						currentPlayer);
+				} else {
+					return _Utils_Tuple2(author$project$GameStatus$NewGame, currentPlayer);
+				}
+			} else {
+				if (_n1.b) {
+					return _Utils_Tuple2(author$project$GameStatus$Drawn, currentPlayer);
+				} else {
+					return _Utils_Tuple2(
+						author$project$GameStatus$Playing,
+						author$project$Player$getOpponent(currentPlayer));
+				}
+			}
+		}();
+		var newStatus = _n0.a;
+		var newCurrentPlayer = _n0.b;
+		return _Utils_Tuple2(newStatus, newCurrentPlayer);
+	});
+var author$project$Main$updateStatus = function (model) {
 	var board = model.board;
 	var currentPlayer = model.currentPlayer;
-	var isWinningPlayer = A2(author$project$Board$hasPlayerWon, currentPlayer, board);
-	var isDrawnGame = author$project$Board$isATie(board);
-	var _n0 = function () {
-		var _n1 = _Utils_Tuple2(isWinningPlayer, isDrawnGame);
-		if (_n1.a) {
-			if (!_n1.b) {
-				return _Utils_Tuple2(
-					author$project$Main$Winner(currentPlayer),
-					currentPlayer);
-			} else {
-				return _Utils_Tuple2(author$project$Main$NewGame, currentPlayer);
-			}
-		} else {
-			if (_n1.b) {
-				return _Utils_Tuple2(author$project$Main$Drawn, currentPlayer);
-			} else {
-				return _Utils_Tuple2(
-					author$project$Main$Playing,
-					author$project$Main$getOpponent(currentPlayer));
-			}
-		}
-	}();
+	var _n0 = A2(author$project$GameStatus$checkGameStatus, model.board, model.currentPlayer);
 	var newStatus = _n0.a;
 	var newCurrentPlayer = _n0.b;
 	return _Utils_update(
 		model,
 		{currentPlayer: newCurrentPlayer, status: newStatus});
-};
-var elm$core$List$head = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return elm$core$Maybe$Just(x);
-	} else {
-		return elm$core$Maybe$Nothing;
-	}
-};
-var author$project$Main$computerSelectsRandomMove = function (availablePositions) {
-	return elm$core$List$head(availablePositions);
-};
-var author$project$Main$getComputerMove = function (model) {
-	var _n0 = author$project$Main$computerSelectsRandomMove(
-		author$project$Board$availableMoves(model.board));
-	if (_n0.$ === 'Just') {
-		var move = _n0.a;
-		return _Utils_update(
-			model,
-			{
-				board: A3(author$project$Board$markBoard, move, model.currentPlayer, model.board)
-			});
-	} else {
-		return model;
-	}
-};
-var author$project$Main$isComputerPlayer = F2(
-	function (currentPlayer, model) {
-		var _n0 = model.computerPlayer;
-		if (_n0.$ === 'Just') {
-			var computerPlayer = _n0.a;
-			return _Utils_eq(currentPlayer, computerPlayer);
-		} else {
-			return false;
-		}
-	});
-var author$project$Main$isComputerTurn = function (model) {
-	var board = model.board;
-	var currentPlayer = model.currentPlayer;
-	var computerPlayer = model.computerPlayer;
-	return (A2(author$project$Main$isComputerPlayer, currentPlayer, model) && _Utils_eq(model.status, author$project$Main$Playing)) ? true : false;
 };
 var author$project$Main$update = F2(
 	function (msg, model) {
@@ -5549,23 +5556,23 @@ var author$project$Main$update = F2(
 			case 'HumanVsHuman':
 				return _Utils_update(
 					author$project$Main$init,
-					{status: author$project$Main$Playing});
+					{status: author$project$GameStatus$Playing});
 			case 'HumanVsEasyComputer':
 				return _Utils_update(
 					author$project$Main$init,
 					{
 						computerPlayer: elm$core$Maybe$Just(author$project$Player$O),
-						status: author$project$Main$Playing
+						status: author$project$GameStatus$Playing
 					});
 			case 'TakeTurn':
 				var position = msg.a;
-				var newModel = (author$project$Main$canContinueGame(model) && A2(author$project$Board$isValidMove, position, model.board)) ? author$project$Main$checkGameStatus(
+				var newModel = (author$project$GameStatus$canContinueGame(model.status) && A2(author$project$Board$isValidMove, position, model.board)) ? author$project$Main$updateStatus(
 					_Utils_update(
 						model,
 						{
 							board: A3(author$project$Board$markBoard, position, model.currentPlayer, model.board)
 						})) : model;
-				var addComputerMoveIfRelevant = (author$project$Main$isComputerTurn(newModel) && author$project$Main$canContinueGame(newModel)) ? author$project$Main$checkGameStatus(
+				var addComputerMoveIfRelevant = (author$project$Main$isComputerTurn(newModel) && author$project$GameStatus$canContinueGame(newModel.status)) ? author$project$Main$updateStatus(
 					author$project$Main$getComputerMove(newModel)) : newModel;
 				return addComputerMoveIfRelevant;
 			case 'ResetGame':
@@ -5574,20 +5581,10 @@ var author$project$Main$update = F2(
 				return model;
 		}
 	});
-var author$project$Main$showPlayer = function (player) {
-	switch (player.$) {
-		case 'X':
-			return 'X';
-		case 'O':
-			return 'O';
-		default:
-			return '';
-	}
-};
 var author$project$Main$TakeTurn = function (a) {
 	return {$: 'TakeTurn', a: a};
 };
-var author$project$Main$currentPlayerValue = F2(
+var author$project$Player$value = F2(
 	function (grid, index) {
 		return A2(
 			elm$core$Maybe$withDefault,
@@ -5895,7 +5892,7 @@ var author$project$Main$formatCells = function (allCells) {
 						_List_fromArray(
 							[
 								elm$html$Html$text(
-								A2(author$project$Main$currentPlayerValue, allCells, 0))
+								A2(author$project$Player$value, allCells, 0))
 							])),
 						A2(
 						elm$html$Html$button,
@@ -5908,7 +5905,7 @@ var author$project$Main$formatCells = function (allCells) {
 						_List_fromArray(
 							[
 								elm$html$Html$text(
-								A2(author$project$Main$currentPlayerValue, allCells, 1))
+								A2(author$project$Player$value, allCells, 1))
 							])),
 						A2(
 						elm$html$Html$button,
@@ -5921,7 +5918,7 @@ var author$project$Main$formatCells = function (allCells) {
 						_List_fromArray(
 							[
 								elm$html$Html$text(
-								A2(author$project$Main$currentPlayerValue, allCells, 2))
+								A2(author$project$Player$value, allCells, 2))
 							]))
 					])),
 				A2(
@@ -5943,7 +5940,7 @@ var author$project$Main$formatCells = function (allCells) {
 						_List_fromArray(
 							[
 								elm$html$Html$text(
-								A2(author$project$Main$currentPlayerValue, allCells, 3))
+								A2(author$project$Player$value, allCells, 3))
 							])),
 						A2(
 						elm$html$Html$button,
@@ -5956,7 +5953,7 @@ var author$project$Main$formatCells = function (allCells) {
 						_List_fromArray(
 							[
 								elm$html$Html$text(
-								A2(author$project$Main$currentPlayerValue, allCells, 4))
+								A2(author$project$Player$value, allCells, 4))
 							])),
 						A2(
 						elm$html$Html$button,
@@ -5969,7 +5966,7 @@ var author$project$Main$formatCells = function (allCells) {
 						_List_fromArray(
 							[
 								elm$html$Html$text(
-								A2(author$project$Main$currentPlayerValue, allCells, 5))
+								A2(author$project$Player$value, allCells, 5))
 							]))
 					])),
 				A2(
@@ -5991,7 +5988,7 @@ var author$project$Main$formatCells = function (allCells) {
 						_List_fromArray(
 							[
 								elm$html$Html$text(
-								A2(author$project$Main$currentPlayerValue, allCells, 6))
+								A2(author$project$Player$value, allCells, 6))
 							])),
 						A2(
 						elm$html$Html$button,
@@ -6004,7 +6001,7 @@ var author$project$Main$formatCells = function (allCells) {
 						_List_fromArray(
 							[
 								elm$html$Html$text(
-								A2(author$project$Main$currentPlayerValue, allCells, 7))
+								A2(author$project$Player$value, allCells, 7))
 							])),
 						A2(
 						elm$html$Html$button,
@@ -6017,7 +6014,7 @@ var author$project$Main$formatCells = function (allCells) {
 						_List_fromArray(
 							[
 								elm$html$Html$text(
-								A2(author$project$Main$currentPlayerValue, allCells, 8))
+								A2(author$project$Player$value, allCells, 8))
 							]))
 					]))
 			]));
@@ -6043,10 +6040,9 @@ var author$project$Main$buttonNewGame = F3(
 					elm$html$Html$text(buttonText)
 				]));
 	});
-var author$project$Main$viewGameMenu = function (model) {
+var author$project$Main$viewGameMenu = function (status) {
 	var newGameButtons = function () {
-		var _n0 = model.status;
-		if (_n0.$ === 'Playing') {
+		if (status.$ === 'Playing') {
 			return A2(
 				elm$html$Html$div,
 				_List_Nil,
@@ -6061,7 +6057,7 @@ var author$project$Main$viewGameMenu = function (model) {
 				_List_fromArray(
 					[
 						A3(author$project$Main$buttonNewGame, 'two-pl-button', '2 Player', author$project$Main$HumanVsHuman),
-						A3(author$project$Main$buttonNewGame, 'easy-pc-button', '1 Player (Easy)', author$project$Main$HumanVsEasyComputer)
+						A3(author$project$Main$buttonNewGame, 'easy-ai-button', '1 Player (Easy)', author$project$Main$HumanVsEasyComputer)
 					]));
 		}
 	}();
@@ -6075,49 +6071,58 @@ var author$project$Main$viewGameMenu = function (model) {
 		_List_fromArray(
 			[newGameButtons]));
 };
-var elm$html$Html$h4 = _VirtualDom_node('h4');
-var author$project$Main$viewGameStatus = function (model) {
-	var gameStatusMessage = function () {
-		var _n0 = model.status;
-		switch (_n0.$) {
-			case 'Playing':
-				return _List_fromArray(
-					[
-						elm$html$Html$text('')
-					]);
-			case 'Winner':
-				return _List_fromArray(
-					[
-						elm$html$Html$text(
-						author$project$Main$showPlayer(model.currentPlayer)),
-						elm$html$Html$text(' wins!!')
-					]);
-			case 'Drawn':
-				return _List_fromArray(
-					[
-						elm$html$Html$text('It\'s a tie!')
-					]);
-			default:
-				return _List_fromArray(
-					[
-						elm$html$Html$text('')
-					]);
-		}
-	}();
-	return A2(
-		elm$html$Html$h4,
-		_List_fromArray(
-			[
-				elm$html$Html$Attributes$class('message'),
-				elm$html$Html$Attributes$id('game-status-message')
-			]),
-		gameStatusMessage);
+var author$project$Player$showPlayer = function (player) {
+	switch (player.$) {
+		case 'X':
+			return 'X';
+		case 'O':
+			return 'O';
+		default:
+			return '';
+	}
 };
+var elm$html$Html$h4 = _VirtualDom_node('h4');
+var author$project$Main$viewGameStatus = F2(
+	function (status, currentPlayer) {
+		var gameStatusMessage = function () {
+			switch (status.$) {
+				case 'Playing':
+					return _List_fromArray(
+						[
+							elm$html$Html$text('')
+						]);
+				case 'Winner':
+					return _List_fromArray(
+						[
+							elm$html$Html$text(
+							author$project$Player$showPlayer(currentPlayer)),
+							elm$html$Html$text(' wins!!')
+						]);
+				case 'Drawn':
+					return _List_fromArray(
+						[
+							elm$html$Html$text('It\'s a tie!')
+						]);
+				default:
+					return _List_fromArray(
+						[
+							elm$html$Html$text('')
+						]);
+			}
+		}();
+		return A2(
+			elm$html$Html$h4,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class('message'),
+					elm$html$Html$Attributes$id('game-status-message')
+				]),
+			gameStatusMessage);
+	});
 var elm$html$Html$h1 = _VirtualDom_node('h1');
-var author$project$Main$viewWelcomeMessage = function (model) {
+var author$project$Main$viewWelcomeMessage = function (status) {
 	var welcomeMessage = function () {
-		var _n0 = model.status;
-		switch (_n0.$) {
+		switch (status.$) {
 			case 'Playing':
 				return elm$html$Html$text(' ');
 			case 'Winner':
@@ -6155,9 +6160,9 @@ var author$project$Main$view = function (model) {
 					]),
 				_List_fromArray(
 					[
-						author$project$Main$viewWelcomeMessage(model),
-						author$project$Main$viewGameMenu(model),
-						author$project$Main$viewGameStatus(model)
+						author$project$Main$viewWelcomeMessage(model.status),
+						author$project$Main$viewGameMenu(model.status),
+						A2(author$project$Main$viewGameStatus, model.status, model.currentPlayer)
 					])),
 				A2(
 				elm$html$Html$div,
@@ -6167,7 +6172,7 @@ var author$project$Main$view = function (model) {
 						author$project$Main$viewBoard(
 						A2(
 							elm$core$List$map,
-							author$project$Main$showPlayer,
+							author$project$Player$showPlayer,
 							elm$core$Dict$values(model.board)))
 					]))
 			]));

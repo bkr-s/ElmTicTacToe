@@ -9,7 +9,7 @@ import Test exposing (Test, describe, test)
 
 
 boardGrid =
-    Board.initBoard
+    Board.initialBoard
 
 
 nought =
@@ -18,34 +18,6 @@ nought =
 
 cross =
     Player.X
-
-
-fullBoardWithNoWinners =
-    Board.markBoard 7 cross <|
-        Board.markBoard 9 nought <|
-            Board.markBoard 6 cross <|
-                Board.markBoard 8 nought <|
-                    Board.markBoard 5 cross <|
-                        Board.markBoard 4 nought <|
-                            Board.markBoard 2 cross <|
-                                Board.markBoard 3 nought <|
-                                    Board.markBoard 1 cross boardGrid
-
-
-boardWithXAsTheWinner =
-    Board.markBoard 3 cross <|
-        Board.markBoard 5 nought <|
-            Board.markBoard 2 cross <|
-                Board.markBoard 4 nought <|
-                    Board.markBoard 1 cross boardGrid
-
-
-boardWithOAsTheWinner =
-    Board.markBoard 7 nought <|
-        Board.markBoard 5 cross <|
-            Board.markBoard 4 nought <|
-                Board.markBoard 2 cross <|
-                    Board.markBoard 1 nought boardGrid
 
 
 suite : Test
@@ -77,3 +49,31 @@ suite =
             \() ->
                 Expect.true "Exp: a tied board" (Board.isATie fullBoardWithNoWinners)
         ]
+
+
+fullBoardWithNoWinners =
+    Board.markBoard 7 cross <|
+        Board.markBoard 9 nought <|
+            Board.markBoard 6 cross <|
+                Board.markBoard 8 nought <|
+                    Board.markBoard 5 cross <|
+                        Board.markBoard 4 nought <|
+                            Board.markBoard 2 cross <|
+                                Board.markBoard 3 nought <|
+                                    Board.markBoard 1 cross boardGrid
+
+
+boardWithXAsTheWinner =
+    Board.markBoard 3 cross <|
+        Board.markBoard 5 nought <|
+            Board.markBoard 2 cross <|
+                Board.markBoard 4 nought <|
+                    Board.markBoard 1 cross boardGrid
+
+
+boardWithOAsTheWinner =
+    Board.markBoard 7 nought <|
+        Board.markBoard 5 cross <|
+            Board.markBoard 4 nought <|
+                Board.markBoard 2 cross <|
+                    Board.markBoard 1 nought boardGrid
