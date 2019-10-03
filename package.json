@@ -9,7 +9,7 @@
   "scripts": {
     "test": "elm-test",
     "build": "npm run elm-build",
-    "elm-build": "elm-live --open --start-page=public/index.html -- --output=public/main.js"
+    "elm-build": "elm-live src/main.elm --open --start-page=public/index.html -- --output=public/main.js"
   },
   "repository": {
     "type": "git",
