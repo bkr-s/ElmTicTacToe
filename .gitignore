@@ -8,5 +8,3 @@ repl-temp-*
 .idea/
 # node
 node_modules/
-
-package-lock.json
