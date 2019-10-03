@@ -11,7 +11,7 @@ Write an unbeatable Tic Tac Toe program in a language you've never used before.
 Language chosen: [Elm]("https://elm-lang.org)
 
 ## To get started
-Pre-requisite: The following steps assume that you have Node.js installed on your local machine.
+Pre-requisite: The following steps assume that you have [npm]("https://www.npmjs.com") installed on your local machine.
 
 1. Clone this repository to your local machine
 2. `$ cd ` into the directory that the repository was cloned to
