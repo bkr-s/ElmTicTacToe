@@ -7,20 +7,20 @@ Write an unbeatable Tic Tac Toe program in a language you've never used before.
 -[x] 1 player - Human vs Easy Computer  
 -[] 1 player - Human vs Unbeatable Computer
 
-##Code
+## Code
 Language chosen: [Elm]("https://elm-lang.org)
 
-##To get started
+## To get started
 1. Clone this repository to your local machine
 2. Install npm packages needed to run the files `$ npm install --save-dev elm`. (Or globally: `$ npm install -g elm`)
 
-##Testing
+## Testing
 ```npm run test```
 
-##Launch the game
+## Launch the game
 ```npm run build```
 
-##Linting
+## Linting
 This project uses JetBrains [Elm]("https://plugins.jetbrains.com/plugin/10268-elm/") plugin which auto formats on save
 
 
@@ -43,7 +43,7 @@ _________
 
 _________
 
-###Reflection
+### Reflection
 - When I initially approached the project I started off in a very OO manner, building a board module first
 - As I continued to ramp up it because apparent that the game "loop" would emerge from the Model - View - Update cycle 
 - Found that after watching a talk by the creator and starting Main.elm, things went a bit smoother. Focusing on the Model, custom types and using cases to steer the flow of the game really helped
