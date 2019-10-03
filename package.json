@@ -1,5 +1,5 @@
 {
-  "name": "y",
+  "name": "tic-tac-toe",
   "version": "1.0.0",
   "description": "",
   "main": "main.js",
@@ -7,7 +7,9 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "elm-test"
+    "test": "elm-test",
+    "build": "npm run elm-build",
+    "elm-build": "elm-live --open --start-page=public/index.html -- --output=public/main.js"
   },
   "repository": {
     "type": "git",
@@ -21,8 +23,7 @@
   "homepage": "https://github.com/bkr-s/ElmTicTacToe#readme",
   "devDependencies": {
     "elm": "^0.19.0-no-deps",
-    "elm-test": "^0.19.0-rev6",
-    "tachyons": "^4.10.0"
+    "elm-test": "^0.19.0-rev6"
   },
   "dependencies": {
     "prettier": "^1.18.2"
